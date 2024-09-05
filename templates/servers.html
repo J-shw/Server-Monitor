@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/css/servers.css">
+    <title>Server Monitor</title>
+</head>
+<body>
+    <h1>Servers - Interval {{ config.monitoring_interval }} Seconds</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>State</th>
+                <th>Server Name</th>
+                <th>IP Address</th>
+                <th>Trip Time (ms)</th>
+                <th>Last Active</th>
+            </tr>
+        </thead>
+        <tbody id="servers-table">
+            {% for server in servers %}
+                <tr id="{{server.id}}">
+                    <td>
+                        <p class="server-state server-state-{{server.state}}"></p>
+                    </td>
+                    <td>{{ server.name }}</td>
+                    <td>{{ server.ip }}</td>
+                    <td>
+                        {% if server.last_active != None %}
+                            {{ server.trip_time | round(1)}}
+                        {% else %}
+                            Unknown
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if server.last_active != None %}
+                            {{ server.last_active.strftime('%Y-%m-%d %H:%M:%S') }}
+                        {% else %}
+                            Unknown
+                        {% endif %}
+                    </td> 
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
