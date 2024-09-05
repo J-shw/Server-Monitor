@@ -1,0 +1,61 @@
+@media (prefers-color-scheme: light) {
+    /*
+    White - rgb(14,17,22)
+    Whitesmoke - rgb(2,4,9)
+    */
+
+    th {
+        background-color: #f2f2f2;
+        border-top: 1px solid #ccc;
+        border-bottom: 1px solid #ccc;
+    }
+
+    td {
+        border-top: 1px solid #ccc;
+        border-bottom: 1px solid #ccc;
+    }
+}
+@media (prefers-color-scheme: dark) {
+    th {
+        background-color: rgb(2,4,9);
+        border-top: 1px solid rgb(34,38,44);
+        border-bottom: 1px solid rgb(34,38,44);
+    }
+
+    td {
+        border-top: 1px solid rgb(34,38,44);
+        border-bottom: 1px solid rgb(34,38,44);
+    }
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+th {
+    text-align: left;
+    text-align: center;
+    font-size: small;
+    padding: 5px 5px;
+}
+td {
+    padding: 5px 5px;
+    text-align: center;
+    font-size: small;
+}
+
+.server-state {
+    width: 25px;
+    height: 25px;
+    border-radius: 15px;
+    margin: 0 auto 0 auto;
+}
+
+.server-state-None {
+    background-color: grey;
+}
+.server-state-True {
+    background-color: green;
+}
+.server-state-False {
+    background-color: red;
+}
