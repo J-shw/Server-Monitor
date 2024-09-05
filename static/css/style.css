@@ -22,3 +22,37 @@
     transition: 0.2s;
     font-family: Arial, Helvetica, sans-serif;
 }
+
+.hidden {
+    display: none !important;
+}
+
+input[type='submit'],
+button {
+    border: none;
+    border-radius: 10px;
+    padding: 10px;
+}
+
+input[type='submit']:hover,
+button:hover {
+    cursor: pointer;
+}
+
+input {
+    border: none;
+    border-radius: 5px;
+    padding: 5px;
+}
+
+.flex {
+    display: flex;
+    gap: 5px;
+}
+.flex > * {
+    flex: 1;
+}
+
+.inline {
+    align-items: center;
+}
