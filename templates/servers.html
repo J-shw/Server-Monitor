@@ -19,6 +19,7 @@
                 <th>Server Name</th>
                 <th>IP Address</th>
                 <th>Trip Time (ms)</th>
+                <th>Up time</th>
                 <th>Last Active</th>
                 <th></th>
             </tr>
@@ -39,12 +40,15 @@
                         {% endif %}
                     </td>
                     <td>
+                        {{ server.uptime }}
+                    </td>
+                    <td>
                         {% if server.last_active != None %}
                             {{ server.last_active.strftime('%Y-%m-%d %H:%M:%S') }}
                         {% else %}
                             Unknown
                         {% endif %}
-                    </td> 
+                    </td>
                     <td><button onclick="deleteItem('{{server.id}}')">Delete</button></td>
                 </tr>
             {% endfor %}
