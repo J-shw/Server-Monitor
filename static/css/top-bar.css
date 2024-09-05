@@ -1,0 +1,31 @@
+.top-bar {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 5px;
+}
+.counters {
+    display: flex;
+    gap: 5px;
+}
+.counters > * {
+    font-size: small;
+    gap: 5px;
+    border-radius: 5px;
+    padding: 5px;
+}
+.counters > div > * {
+    flex: 1;
+    text-align: center;
+}
+.counters > div > input {
+    accent-color: white;
+}
+
+.buttons img {
+    width: 25px;
+}
+.buttons img:hover {
+    cursor: pointer;
+    opacity: 0.8;
+}
