@@ -1,4 +1,4 @@
-import secrets, datetime, time
+import secrets, time, datetime
 from flask import Flask, render_template, jsonify, request, send_file, redirect, url_for, abort, session, Response
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.exc import IntegrityError
@@ -39,6 +39,8 @@ def monitor_servers():
         else:
             server.state = False
             server.trip_time = None
+        log_entry = ServerStatusLog(server_id=server.id, is_online=server.state, trip_time=server.trip_time)
+        db.session.add(log_entry)
         db.session.commit()
 
 login_manager = LoginManager()
@@ -82,6 +84,15 @@ class Hosts(db.Model):
             'trip_time': round(self.trip_time, 1) if self.trip_time is not None else 'Unknown',
             'last_active': self.last_active.strftime('%Y-%m-%d %H:%M:%S') if self.last_active else 'Unknown'
         }
+
+class ServerStatusLog(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    server_id = db.Column(db.Integer, db.ForeignKey('hosts.id'), nullable=False)
+    timestamp = db.Column(db.DateTime, default=lambda: datetime.datetime.now())
+    is_online = db.Column(db.Boolean)
+    trip_time = db.Column(db.Float)
+
+    server = db.relationship('Hosts', backref=db.backref('status_logs', lazy=True))
 
 def __repr__(self):
   return f'<User {self.username}>'
