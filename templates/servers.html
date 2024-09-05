@@ -5,11 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/static/css/style.css">
     <link rel="stylesheet" href="/static/css/servers.css">
-    <script src="/static/script/servers.js"></script>
+    <link rel="stylesheet" href="/static/css/top-bar.css">
+    <link rel="stylesheet" href="/static/css/popup.css">
     <title>Server Monitor</title>
 </head>
+<div id="blanket" class="hidden"></div>
 <body>
-    <h1>Servers - Interval {{ config.monitoring_interval }} Seconds</h1>
+    {% include 'top-bar.html' %}
     <table>
         <thead>
             <tr>
@@ -18,11 +20,12 @@
                 <th>IP Address</th>
                 <th>Trip Time (ms)</th>
                 <th>Last Active</th>
+                <th></th>
             </tr>
         </thead>
         <tbody id="servers-table">
             {% for server in servers %}
-                <tr id="{{server.id}}">
+                <tr id="{{server.id}}" class="row-{{server.state}}">
                     <td>
                         <p class="server-state server-state-{{server.state}}"></p>
                     </td>
@@ -42,9 +45,41 @@
                             Unknown
                         {% endif %}
                     </td> 
+                    <td><button onclick="deleteItem('{{server.id}}')">Delete</button></td>
                 </tr>
             {% endfor %}
         </tbody>
     </table>
+
+    <div id="add-server-popup" class="popup add-server-popup hidden">
+        <form method="POST" action="{{ url_for('add_host') }}">
+            <p>
+                <label for="ip">IP Address:</label><br>
+                <input type="text" id="ip" name="ip" required>
+            </p>
+            <p>
+                <label for="name">Name:</label><br>
+                <input type="text" id="name" name="name" required>
+            </p>
+            <div class="flex inline">
+                <input type="submit" value="Add Host">
+                <button onclick="hidePopup('add-server-popup')">Cancel</button>
+            </div>
+        </form>  
+    </div>
+
+    <div id="interval-popup" class="popup interval-popup hidden">
+        <form method="POST" action="{{ url_for('change_interval') }}">
+            <p>
+                <label for="interval">Interval:</label><br>
+                <input type="number" id="interval" name="interval" required value="{{ config.monitoring_interval }}">
+            </p>
+            <div class="flex inline">
+                <input type="submit" value="Update interval">
+                <button onclick="hidePopup('interval-popup')">Cancel</button>
+            </div>
+        </form>  
+    </div>
 </body>
+<script src="/static/script/servers.js"></script>
 </html>
