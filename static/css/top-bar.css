@@ -1,3 +1,24 @@
+@media (prefers-color-scheme: light) {
+    /*
+    White - rgb(14,17,22)
+    Whitesmoke - rgb(2,4,9)
+    */
+    .online-checkbox {
+        background-color: #c0e5c6;
+    }
+    .offline-checkbox {
+        background-color: #e7ccc7;
+    }
+}
+@media (prefers-color-scheme: dark) {
+    .online-checkbox {
+        background-color: #009518;
+    }
+    .offline-checkbox {
+        background-color: #dd2c0b;
+    }
+}
+
 .top-bar {
     display: flex;
     align-items: center;
