@@ -19,7 +19,6 @@
                 <th>Server Name</th>
                 <th>IP Address</th>
                 <th>Trip Time (ms)</th>
-                <th>Up time</th>
                 <th>Last Active</th>
                 <th></th>
             </tr>
@@ -38,9 +37,6 @@
                         {% else %}
                             Unknown
                         {% endif %}
-                    </td>
-                    <td>
-                        {{ server.uptime }}
                     </td>
                     <td>
                         {% if server.last_active != None %}

@@ -40,7 +40,7 @@ def monitor_servers():
         else:
             server.state = False
             server.trip_time = None
-        log_entry = ServerStatusLog(server_id=server.id, is_online=server.state)
+        log_entry = ServerStatusLog(server_id=server.id, is_online=server.state, trip_time=server.trip_time)
         db.session.add(log_entry)
         db.session.commit()
 
@@ -83,8 +83,7 @@ class Hosts(db.Model):
             'ip': self.ip,
             'state': self.state if self.state != None else 'None',
             'trip_time': round(self.trip_time, 1) if self.trip_time is not None else 'Unknown',
-            'last_active': self.last_active.strftime('%Y-%m-%d %H:%M:%S') if self.last_active else 'Unknown',
-            'uptime': self.uptime if self.state != None else 'None'
+            'last_active': self.last_active.strftime('%Y-%m-%d %H:%M:%S') if self.last_active else 'Unknown'
         }
 
 class ServerStatusLog(db.Model):
@@ -92,40 +91,9 @@ class ServerStatusLog(db.Model):
     server_id = db.Column(db.Integer, db.ForeignKey('hosts.id'), nullable=False)
     timestamp = db.Column(db.DateTime, default=lambda: datetime.datetime.now())
     is_online = db.Column(db.Boolean)
+    trip_time = db.Column(db.Float)
 
     server = db.relationship('Hosts', backref=db.backref('status_logs', lazy=True))
-
-def calculate_uptime(server_id, start_time=None, end_time=None):
-    query = ServerStatusLog.query.filter_by(server_id=server_id)
-    if start_time:
-        query = query.filter(ServerStatusLog.timestamp >= start_time)
-    if end_time:
-        query = query.filter(ServerStatusLog.timestamp <= end_time)
-
-    logs = query.all()
-
-    total_time = (end_time - start_time).total_seconds() if start_time and end_time else None
-    uptime = 0
-    for i in range(len(logs) - 1):
-        if logs[i].is_online:
-            try:
-                time_diff = (logs[i + 1].timestamp - logs[i].timestamp).total_seconds()
-                uptime += time_diff 
-                if total_time is not None:
-                    total_time -= time_diff
-            except:
-                pass
-
-    # If the last log entry shows the server is online and we have an end_time
-    try:
-        if logs[-1].is_online and total_time is not None:
-            uptime += total_time
-    except: pass
-
-    if total_time:
-        return (uptime / total_time) * 100 
-    else:
-        return None
 
 def __repr__(self):
   return f'<User {self.username}>'
@@ -148,8 +116,6 @@ def index():
 def display_servers():
     servers = Hosts.query.all()
     config = AppConfig.query.first()
-    for server in servers:
-        server.uptime = calculate_uptime(server.id)
     return render_template('servers.html', servers=servers, config=config)
 
 @flaskApp.route('/logout')
@@ -203,8 +169,6 @@ def register():
 @flaskApp.route('/server_updates')
 def server_updates():
     servers = Hosts.query.all()
-    for server in servers:
-        server.uptime = calculate_uptime(server.id)
     return jsonify(servers=[server.to_dict() for server in servers])
 
 @flaskApp.route('/add_host', methods=['GET', 'POST'])

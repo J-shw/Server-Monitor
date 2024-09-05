@@ -103,9 +103,6 @@ function update_element(server){
         ${server.trip_time}
     </td>
     <td>
-        ${server.uptime}
-    </td>
-    <td>
         ${server.last_active}
     </td> 
     <td><button onclick="deleteItem('${server.id}')">Delete</button></td>
@@ -137,9 +134,6 @@ function create_element(server){
     <td>${server.ip}</td>
     <td>
         ${server.trip_time}
-    </td>
-    <td>
-        ${server.uptime}
     </td>
     <td>
         ${server.last_active}
