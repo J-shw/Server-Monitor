@@ -30,7 +30,7 @@ def monitor_servers_task():
 
 
 def monitor_servers():
-    servers = VMHosts.query.all()
+    servers = Hosts.query.all()
     for server in servers:
         host = ping(server.ip, count=1, timeout=2)
         if host.is_alive:
@@ -66,15 +66,13 @@ class User(UserMixin, db.Model):
     def is_active(self):
         return True
 
-class VMHosts(db.Model):
+class Hosts(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64))
     ip = db.Column(db.String(64))
     trip_time = db.Column(db.Float)
     state = db.Column(db.Boolean, default=None)
     last_active = db.Column(db.DateTime)
-
-    vms = db.relationship('VMs', backref='host', lazy=True)
 
     def to_dict(self):
         return {
@@ -85,15 +83,6 @@ class VMHosts(db.Model):
             'trip_time': round(self.trip_time, 1) if self.trip_time is not None else 'Unknown',
             'last_active': self.last_active.strftime('%Y-%m-%d %H:%M:%S') if self.last_active else 'Unknown'
         }
-
-class VMs(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    host_id  = db.Column(db.Integer, db.ForeignKey('vm_hosts.id'), nullable=False)
-    name = db.Column(db.String(64))
-    ip = db.Column(db.String(64))
-    trip_time = db.Column(db.Float)
-    state = db.Column(db.Boolean, default=False)
-    last_active = db.Column(db.DateTime)
 
 def __repr__(self):
   return f'<User {self.username}>'
@@ -114,7 +103,7 @@ def index():
 
 @flaskApp.route('/servers')
 def display_servers():
-    servers = VMHosts.query.all()
+    servers = Hosts.query.all()
     config = AppConfig.query.first()
     return render_template('servers.html', servers=servers, config=config)
 
@@ -168,7 +157,7 @@ def register():
 
 @flaskApp.route('/server_updates')
 def server_updates():
-    servers = VMHosts.query.all()
+    servers = Hosts.query.all()
     return jsonify(servers=[server.to_dict() for server in servers])
 
 @flaskApp.route('/add_host', methods=['GET', 'POST'])
@@ -177,7 +166,7 @@ def add_host():
         ip = request.form.get('ip')
         name = request.form.get('name')
         if name:  # Basic validation: check if the name is provided
-            new_host = VMHosts(name=name, ip=ip)
+            new_host = Hosts(name=name, ip=ip)
             db.session.add(new_host)
             db.session.commit()
             return redirect(url_for('display_servers'))
@@ -189,7 +178,14 @@ def change_interval():
     config = AppConfig.query.first()
     config.monitoring_interval = new_interval
     db.session.commit()
-    return 'Interval changed successfully'
+    return redirect(url_for('display_servers'))
+
+@flaskApp.route('/delete/server/<int:id>')
+def delete_server(id):
+    host = Hosts.query.get_or_404(id)
+    db.session.delete(host)
+    db.session.commit()
+    return redirect(url_for('display_servers'))
 
 if __name__ == '__main__':
     try:
