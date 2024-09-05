@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Add Host</h1>
+    <form method="POST" action="{{ url_for('add_host') }}">
+        <p>
+            <label for="ip">IP Address:</label><br>
+            <input type="text" id="ip" name="ip" required>
+        </p>
+        <p>
+            <label for="name">Name:</label><br>
+            <input type="text" id="name" name="name" required>
+        </p>
+        <p><input type="submit" value="Add Host"></p>
+    </form>
+</body>
+</html>
