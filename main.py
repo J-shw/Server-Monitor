@@ -38,7 +38,8 @@ def monitor_servers():
             server.trip_time = host.avg_rtt
             server.last_active = datetime.datetime.now()
         else:
-            server.state = True
+            server.state = False
+            server.trip_time = None
         db.session.commit()
 
 login_manager = LoginManager()
@@ -74,6 +75,16 @@ class VMHosts(db.Model):
     last_active = db.Column(db.DateTime)
 
     vms = db.relationship('VMs', backref='host', lazy=True)
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'ip': self.ip,
+            'state': self.state if self.state != None else 'None',
+            'trip_time': round(self.trip_time, 1) if self.trip_time is not None else 'Unknown',
+            'last_active': self.last_active.strftime('%Y-%m-%d %H:%M:%S') if self.last_active else 'Unknown'
+        }
 
 class VMs(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -157,14 +168,8 @@ def register():
 
 @flaskApp.route('/server_updates')
 def server_updates():
-    def generate():
-        while True:
-            servers = VMHosts.query.all()
-            data = jsonify(servers=[server.to_dict() for server in servers])
-            yield f"data: {data}\n\n"
-            time.sleep(5)  # Adjust the update interval as needed
-
-    return Response(generate(), mimetype='text/event-stream')
+    servers = VMHosts.query.all()
+    return jsonify(servers=[server.to_dict() for server in servers])
 
 @flaskApp.route('/add_host', methods=['GET', 'POST'])
 def add_host():
