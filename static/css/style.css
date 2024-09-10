@@ -24,8 +24,9 @@
         color: white;
     }
 
-    .logo {
-        filter: invert(100%);
+    .invertImg,
+    .clickImg{
+        filter: invert(100%); 
     }
 
     input,
@@ -49,6 +50,14 @@
 
 .hidden {
     display: none !important;
+}
+
+.clickImg {
+    opacity: 0.3;
+}
+.clickImg:hover{
+    cursor: pointer;
+    opacity: 1;
 }
 
 input[type='submit'],
