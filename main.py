@@ -19,11 +19,6 @@ scheduler.start()
 def monitor_servers_task():
     with flaskApp.app_context():
         config = AppConfig.query.first()
-        if not config:  # Handle case where config doesn't exist yet
-            config = AppConfig(monitoring_interval=60)
-            db.session.add(config)
-            db.session.commit()
-
         scheduler.modify_job('monitor_servers', trigger='interval', seconds=config.monitoring_interval)
         monitor_servers() 
 
@@ -145,6 +140,7 @@ def login():
         return render_template('admin/login.html')
 
 @flaskApp.route('/register', methods=['GET', 'POST'])
+@login_required
 def register():
     if request.method == 'POST':
         username = request.form['username'].lower()
@@ -202,6 +198,21 @@ if __name__ == '__main__':
     try:
         with flaskApp.app_context():
             db.create_all()
+
+            # DataBase initialise
+            config = AppConfig.query.first()
+            if not config:  # Handle case where config doesn't exist yet
+                config = AppConfig(monitoring_interval=60)
+                db.session.add(config)
+                db.session.commit()
+            
+            user = User.query.first()
+            if not user: # Creates default User admin
+                hashed_password = bcrypt.generate_password_hash('admin').decode('utf-8')
+                new_user = User(username='admin',password_hash=hashed_password)
+                db.session.add(new_user)
+                db.session.commit()
+
     except Exception as e:
         print(f'Failed to create local databse: {e}')
     try:
