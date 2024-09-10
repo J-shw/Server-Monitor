@@ -15,7 +15,7 @@ scheduler = APScheduler()
 scheduler.init_app(flaskApp)
 scheduler.start()
 
-@scheduler.task('interval', id='monitor_servers', seconds=60)  # Initial interval
+@scheduler.task('interval', id='monitor_servers', seconds=0)  # Initial interval
 def monitor_servers_task():
     with flaskApp.app_context():
         config = AppConfig.query.first()
