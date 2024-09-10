@@ -166,7 +166,13 @@ def server_updates():
     servers = Hosts.query.all()
     return jsonify(servers=[server.to_dict() for server in servers])
 
+@flaskApp.route('/get_server/<int:id>')
+def get_server(id):
+    server = Hosts.query.get_or_404(id)
+    return jsonify(server=server.to_dict())
+
 @flaskApp.route('/add_host', methods=['GET', 'POST'])
+@login_required
 def add_host():
     if request.method == 'POST':
         ip = request.form.get('ip')
@@ -178,7 +184,21 @@ def add_host():
             return redirect(url_for('display_servers'))
     return render_template('add_host.html')
 
+@flaskApp.route('/update_host', methods=['GET', 'POST'])
+@login_required
+def update_host():
+    if request.method == 'POST':
+        ip = request.form.get('ip')
+        name = request.form.get('name')
+        if name:  # Basic validation: check if the name is provided
+            new_host = Hosts(name=name, ip=ip)
+            db.session.add(new_host)
+            db.session.commit()
+            return redirect(url_for('display_servers'))
+    return render_template('add_host.html')
+
 @flaskApp.route('/change_interval', methods=['POST'])
+@login_required
 def change_interval():
     new_interval = int(request.form.get('interval'))
     config = AppConfig.query.first()
@@ -187,6 +207,7 @@ def change_interval():
     return redirect(url_for('display_servers'))
 
 @flaskApp.route('/delete/server/<int:id>')
+@login_required
 def delete_server(id):
     host = Hosts.query.get_or_404(id)
     ServerStatusLog.query.filter_by(server_id=host.id).delete()
