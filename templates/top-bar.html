@@ -1,5 +1,5 @@
 <div id="top-bar" class="top-bar">
-    <img id="check-config-icon" src="static/data/images/server.png" class="logo" style="width: 25px;">
+    <img id="check-config-icon" src="static/data/images/server.png" class="invertImg" style="width: 25px;">
     <div class="counters" style="flex: 30%;">
         <div style="display: flex;" class="online-checkbox">
             <input id="online-checkbox" type="checkbox" checked>
@@ -14,4 +14,9 @@
     </div>
     <button title="Create a new connection" onclick="showPopup('add-server-popup')">New Server</button>
     <button title="Save current file" onclick="showPopup('interval-popup')">Set Interval</button>
+    {% if not current_user.is_authenticated %}
+	<a class="img-nav" href="/login" id="loginNavBtn"><img style="width: 25px;" class="clickImg" src="/static/data/images/user.png" title="Login"></a>
+    {% else %}
+    <a title="Logout" href="/logout">Logout</a>
+	{% endif %}
 </div>
