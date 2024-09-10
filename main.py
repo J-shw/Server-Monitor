@@ -193,6 +193,7 @@ def change_interval():
 @flaskApp.route('/delete/server/<int:id>')
 def delete_server(id):
     host = Hosts.query.get_or_404(id)
+    ServerStatusLog.query.filter_by(server_id=host.id).delete()
     db.session.delete(host)
     db.session.commit()
     return redirect(url_for('display_servers'))
