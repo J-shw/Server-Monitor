@@ -15,7 +15,7 @@ scheduler = APScheduler()
 scheduler.init_app(flaskApp)
 scheduler.start()
 
-@scheduler.task('interval', id='monitor_servers', seconds=60)  # Initial interval
+@scheduler.task('interval', id='monitor_servers', seconds=0)  # Initial interval
 def monitor_servers_task():
     with flaskApp.app_context():
         config = AppConfig.query.first()
@@ -193,6 +193,7 @@ def change_interval():
 @flaskApp.route('/delete/server/<int:id>')
 def delete_server(id):
     host = Hosts.query.get_or_404(id)
+    ServerStatusLog.query.filter_by(server_id=host.id).delete()
     db.session.delete(host)
     db.session.commit()
     return redirect(url_for('display_servers'))
