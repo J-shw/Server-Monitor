@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="/static/css/servers.css">
     <link rel="stylesheet" href="/static/css/top-bar.css">
     <link rel="stylesheet" href="/static/css/popup.css">
+    <script src="/static/script/display.js"></script>
     <link rel="icon" type="image/x-icon" href="/static/data/images/server.png">
     <title>Server Monitor</title>
 </head>
@@ -25,30 +26,6 @@
             </tr>
         </thead>
         <tbody id="servers-table">
-            {% for server in servers %}
-                <tr id="{{server.id}}" class="row-{{server.state}}">
-                    <td>
-                        <p class="server-state server-state-{{server.state}}"></p>
-                    </td>
-                    <td>{{ server.name }}</td>
-                    <td>{{ server.ip }}</td>
-                    <td>
-                        {% if server.trip_time != None %}
-                            {{ server.trip_time | round(1)}}
-                        {% else %}
-                            Unknown
-                        {% endif %}
-                    </td>
-                    <td>
-                        {% if server.last_active != None %}
-                            {{ server.last_active.strftime('%Y-%m-%d %H:%M:%S') }}
-                        {% else %}
-                            Unknown
-                        {% endif %}
-                    </td>
-                    <td><button onclick="deleteItem('{{server.id}}')">Delete</button></td>
-                </tr>
-            {% endfor %}
         </tbody>
     </table>
 
