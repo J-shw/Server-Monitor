@@ -67,6 +67,7 @@ button {
     padding: 10px;
 }
 
+tbody tr:hover,
 input[type='submit']:hover,
 button:hover {
     cursor: pointer;
