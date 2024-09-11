@@ -4,14 +4,20 @@
     Whitesmoke - rgb(2,4,9)
     */
 
-    tr:hover {
+    tbody tr:hover {
         background-color: whitesmoke;
+    }
+    tbody tr {
+        box-shadow: 0 0 10px 1px rgba(0, 0, 0, 0.1);
     }
 }
 @media (prefers-color-scheme: dark) {
 
-    tr:hover {
+    tbody tr:hover {
         background-color: rgb(2,4,9);
+    }
+    tbody tr {
+        box-shadow: 0 0 10px 1px rgba(80, 80, 82, 0.1);
     }
 }
 table {
@@ -34,7 +40,6 @@ td {
     font-size: large;
 }
 tbody tr {
-    box-shadow: 0 0 10px 1px rgba(0, 0, 0, 0.1);
     border-radius: 5px;
     padding: 5px;
 }
