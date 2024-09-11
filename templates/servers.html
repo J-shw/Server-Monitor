@@ -38,7 +38,7 @@
                 <label for="name">Name:</label><br>
                 <input type="text" id="name" name="name" required>
             </p>
-            <div class="flex inline">
+            <div class="flex inline popup-buttons">
                 <input type="submit" value="Add Host">
                 <button type="button" onclick="hidePopup('add-server-popup')">Cancel</button>
             </div>
@@ -51,7 +51,7 @@
                 <label for="interval">Interval:</label><br>
                 <input type="number" id="interval" name="interval" required value="{{ config.monitoring_interval }}">
             </p>
-            <div class="flex inline">
+            <div class="flex inline popup-buttons">
                 <input type="submit" value="Update interval">
                 <button type="button" onclick="hidePopup('interval-popup')">Cancel</button>
             </div>
@@ -69,7 +69,7 @@
                 <label for="ip">IP</label><br>
                 <input type="text" id="server-ip" name="ip" required>
             </p>
-            <div class="flex inline">
+            <div class="flex inline popup-buttons">
                 {% if current_user.is_authenticated %}
                 <input type="submit" value="Save">
                 <button  type="button" onclick="deleteServer()">Delete</button>
