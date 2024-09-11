@@ -101,7 +101,7 @@ form{
     margin-top: 25px;
     max-width: 450px;
 }
-form input{
+form .inputs input{
     margin-bottom: 5px;
     font-size: x-large;
 }

@@ -14,14 +14,16 @@
         <p class="title">Login</p>
 
         <form action="/login" method="post">
-            <input id="username" name="username" placeholder="Username" type="text" required>
-            <input id="password" name="password" placeholder="Password" type="password" required>
+            <div class="inputs">
+                <input id="username" name="username" placeholder="Username" type="text" required>
+                <input id="password" name="password" placeholder="Password" type="password" required>
+            </div>
             {% if error %}
                 <p style="color: red;">{{ error }}</p>
             {% endif %}
             <div class="login-buttons">
                 <input type="submit" value="Login">
-                <a href="/"><p class="cancel-button">Cancel</p></a>
+                <a href="/" class="button" style="font-size: x-large;">Cancel</a>
             </div>
         </form>
     </div>
