@@ -22,7 +22,6 @@
                 <th>IP Address</th>
                 <th>Trip Time (ms)</th>
                 <th>Last Active</th>
-                <th></th>
             </tr>
         </thead>
         <tbody id="servers-table">
@@ -41,7 +40,7 @@
             </p>
             <div class="flex inline">
                 <input type="submit" value="Add Host">
-                <button onclick="hidePopup('add-server-popup')">Cancel</button>
+                <button type="button" onclick="hidePopup('add-server-popup')">Cancel</button>
             </div>
         </form>  
     </div>
@@ -54,7 +53,28 @@
             </p>
             <div class="flex inline">
                 <input type="submit" value="Update interval">
-                <button onclick="hidePopup('interval-popup')">Cancel</button>
+                <button type="button" onclick="hidePopup('interval-popup')">Cancel</button>
+            </div>
+        </form>  
+    </div>
+
+    <div id="server-popup" class="popup server-popup hidden">
+        <input id="server-id" class="hidden">
+        <form method="POST" action="{{ url_for('update_host') }}">
+            <p>
+                <label for="name">Name</label><br>
+                <input type="text" id="server-name" name="name" required>
+            </p>
+            <p>
+                <label for="ip">IP</label><br>
+                <input type="text" id="server-ip" name="ip" required>
+            </p>
+            <div class="flex inline">
+                {% if current_user.is_authenticated %}
+                <input type="submit" value="Save">
+                <button  type="button" onclick="deleteServer()">Delete</button>
+                {% endif %}
+                <button type="button" onclick="hidePopup('server-popup')">Close</button>
             </div>
         </form>  
     </div>

@@ -19,11 +19,6 @@ scheduler.start()
 def monitor_servers_task():
     with flaskApp.app_context():
         config = AppConfig.query.first()
-        if not config:  # Handle case where config doesn't exist yet
-            config = AppConfig(monitoring_interval=60)
-            db.session.add(config)
-            db.session.commit()
-
         scheduler.modify_job('monitor_servers', trigger='interval', seconds=config.monitoring_interval)
         monitor_servers() 
 
@@ -145,6 +140,7 @@ def login():
         return render_template('admin/login.html')
 
 @flaskApp.route('/register', methods=['GET', 'POST'])
+@login_required
 def register():
     if request.method == 'POST':
         username = request.form['username'].lower()
@@ -170,7 +166,13 @@ def server_updates():
     servers = Hosts.query.all()
     return jsonify(servers=[server.to_dict() for server in servers])
 
+@flaskApp.route('/get_server/<int:id>')
+def get_server(id):
+    server = Hosts.query.get_or_404(id)
+    return jsonify(server=server.to_dict())
+
 @flaskApp.route('/add_host', methods=['GET', 'POST'])
+@login_required
 def add_host():
     if request.method == 'POST':
         ip = request.form.get('ip')
@@ -182,7 +184,21 @@ def add_host():
             return redirect(url_for('display_servers'))
     return render_template('add_host.html')
 
+@flaskApp.route('/update_host', methods=['GET', 'POST'])
+@login_required
+def update_host():
+    if request.method == 'POST':
+        ip = request.form.get('ip')
+        name = request.form.get('name')
+        if name:  # Basic validation: check if the name is provided
+            new_host = Hosts(name=name, ip=ip)
+            db.session.add(new_host)
+            db.session.commit()
+            return redirect(url_for('display_servers'))
+    return render_template('add_host.html')
+
 @flaskApp.route('/change_interval', methods=['POST'])
+@login_required
 def change_interval():
     new_interval = int(request.form.get('interval'))
     config = AppConfig.query.first()
@@ -191,6 +207,7 @@ def change_interval():
     return redirect(url_for('display_servers'))
 
 @flaskApp.route('/delete/server/<int:id>')
+@login_required
 def delete_server(id):
     host = Hosts.query.get_or_404(id)
     ServerStatusLog.query.filter_by(server_id=host.id).delete()
@@ -202,6 +219,21 @@ if __name__ == '__main__':
     try:
         with flaskApp.app_context():
             db.create_all()
+
+            # DataBase initialise
+            config = AppConfig.query.first()
+            if not config:  # Handle case where config doesn't exist yet
+                config = AppConfig(monitoring_interval=60)
+                db.session.add(config)
+                db.session.commit()
+            
+            user = User.query.first()
+            if not user: # Creates default User admin
+                hashed_password = bcrypt.generate_password_hash('admin').decode('utf-8')
+                new_user = User(username='admin',password_hash=hashed_password)
+                db.session.add(new_user)
+                db.session.commit()
+
     except Exception as e:
         print(f'Failed to create local databse: {e}')
     try:

@@ -49,12 +49,15 @@ function hidePopup(id){
     document.getElementById('blanket').classList.add('hidden');
 }
 
-function deleteItem(serverId){ // Deletes the server
+function deleteServer(){ // Deletes the server
+    let serverId = parseInt(document.getElementById('server-id').value);
+    console.log(serverId)
     if (confirm("Are you sure you want to delete this server?")) {
         fetch(`/delete/server/${serverId}`)
         .then(response => {
           if (response.ok) {
             update_servers()
+            hidePopup('server-popup')
           } else {
             console.error('Error deleting server:', response.statusText);
             alert('Failed to delete server')
@@ -65,6 +68,21 @@ function deleteItem(serverId){ // Deletes the server
           alert('Failed to delete server')
         })
     }
+}
+
+function rowClick(id){
+    url = '/get_server/'+id
+    fetch(url)
+    .then(response => response.json())
+    .then(strResponse=>{
+        const SERVER = strResponse.server;
+        
+          document.getElementById('server-id').value = SERVER.id;
+          document.getElementById('server-name').value = SERVER.name;
+          document.getElementById('server-ip').value = SERVER.ip;
+
+          showPopup("server-popup");
+    });
 }
 
 update_servers()

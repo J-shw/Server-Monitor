@@ -61,8 +61,7 @@ function update_element(server){
     </td>
     <td>
         ${server.last_active}
-    </td> 
-    <td><button onclick="deleteItem('${server.id}')">Delete</button></td>
+    </td>
     `
 }
 
@@ -95,7 +94,10 @@ function create_element(server){
     <td>
         ${server.last_active}
     </td>
-    <td><button onclick="deleteItem('${server.id}')">Delete</button></td>
     `
+    row.addEventListener("click", function(event) {     
+        rowClick(server.id);
+    });
+
     TABLE.appendChild(row);
 }
