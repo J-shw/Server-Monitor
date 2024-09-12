@@ -148,7 +148,7 @@ def register():
         confirmPassword = request.form['confirm_password']
 
         if password != confirmPassword:
-            return render_template('admin/registeration.html', error='Passwords do not match')
+            return render_template('admin/credentials.html', error='Passwords do not match', action='/register', title='Registration', page_title='Register User')
 
         hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
         new_user = User(username=username,password_hash=hashed_password)
@@ -157,9 +157,9 @@ def register():
             db.session.commit()
         except IntegrityError:
             db.session.rollback()  # Rollback the session to prevent inconsistencies
-            return render_template('admin/registeration.html', error='Username already taken')
+            return render_template('admin/credentials.html', error='Username already taken', action='/register', title='Registration', page_title='Register User')
         return redirect('/')
-    return render_template('admin/registeration.html')
+    return render_template('admin/credentials.html', action='/register', title='Registration', page_title='Register User')
 
 @flaskApp.route('/server_updates')
 def server_updates():
@@ -196,6 +196,34 @@ def update_host():
             db.session.commit()
             return redirect(url_for('display_servers'))
     return render_template('add_host.html')
+
+@flaskApp.route('/update_login', methods=['GET','POST'])
+@login_required
+def update_login():
+    if request.method == 'POST':
+        username = request.form['username'].lower()
+        password = request.form['password']
+        confirmPassword = request.form['confirm_password']
+
+        if password != confirmPassword:
+            return render_template('admin/credentials.html', error='Passwords do not match', action='/update_login', title='Update Login', page_title='Update User Credentials')
+
+        current_user_id = current_user.id
+
+        # Fetch the existing user record
+        user_to_update = User.query.get(current_user_id) 
+
+        if user_to_update:
+            user_to_update.username = username
+            user_to_update.password_hash = bcrypt.generate_password_hash(password).decode('utf-8')
+
+            try:
+                db.session.commit()
+            except IntegrityError:
+                db.session.rollback()  # Rollback the session to prevent inconsistencies
+                return render_template('admin/credentials.html', error='Username already taken', action='/update_login', title='Update Login', page_title='Update User Credentials')
+            return redirect('/')
+    return render_template('admin/credentials.html', action='/update_login', title='Update Login', page_title='Update User Credentials')
 
 @flaskApp.route('/change_interval', methods=['POST'])
 @login_required
