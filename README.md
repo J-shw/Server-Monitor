@@ -15,3 +15,21 @@ The system tracks which systems are on/offline.
 
 ## Login system
 ![Screenshot 2024-09-12 at 10-48-39 Login](https://github.com/user-attachments/assets/d4763e35-1cae-4ab8-aeb0-8b69bdb59d60)
+
+## Setup
+
+As of now I have not made an installer script.
+
+Please install python [https://www.python.org/]
+
+Then install using pip:
+- Flask
+- Flask-SQLAlchemy
+- SQLAlchemy
+- Flask-Login
+- Flask-Bcrypt
+- Flask-APScheduler
+- icmplib
+- waitress
+
+for example paste 'pip install flask' into command terminal
