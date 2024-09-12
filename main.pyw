@@ -1,4 +1,5 @@
 import secrets, datetime, requests
+from requests.exceptions import Timeout
 from flask import Flask, render_template, jsonify, request, send_file, redirect, url_for, abort, session, Response
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.exc import IntegrityError
@@ -38,14 +39,21 @@ def monitor_servers():
                     server.trip_time = None
                 log_entry = ServerStatusLog(server_id=server.id, is_online=server.state, trip_time=server.trip_time)
             elif server.check_type == 'fetch':
-                response = requests.get(f'{server.scheme}{server.address}', timeout=5)
-                if  response.status_code == 200:
-                    server.state = True
-                    server.last_active = datetime.datetime.now()
-                else:
+                response_code = 0
+                try:
+                    response = requests.get(f'{server.scheme}{server.address}', timeout=2)
+
+                    response_code = response.status_code
+                    if  response_code == 200:
+                        server.state = True
+                        server.last_active = datetime.datetime.now()
+                    else:
+                        server.state = False
+                except Timeout:
+                    response_code = 408
                     server.state = False
 
-                server.response_code = response.status_code
+                server.response_code = response_code
                 log_entry = ServerStatusLog(server_id=server.id, is_online=server.state, response_code=server.response_code)
 
             db.session.add(log_entry)
