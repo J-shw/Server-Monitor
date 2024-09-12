@@ -18,9 +18,11 @@
         <thead>
             <tr>
                 <th>State</th>
+                <th>Check</th>
                 <th>Server Name</th>
                 <th>Address</th>
                 <th>Trip Time (ms)</th>
+                <th>HTTP Response</th>
                 <th>Last Active</th>
             </tr>
         </thead>
@@ -31,8 +33,15 @@
     <div id="add-server-popup" class="popup add-server-popup hidden">
         <form method="POST" action="{{ url_for('add_host') }}">
             <p>
-                <label for="ip">Address:</label><br>
-                <input type="text" id="ip" name="ip" required>
+                <label for="check-type">Address:</label><br>
+                <select id="check-type" name="check_type" required>
+                    <option value="ping" selected>Ping</option>
+                    <option value="fetch">Fetch</option>
+                </select>
+            </p>
+            <p>
+                <label for="address">Address:</label><br>
+                <input type="text" id="address" name="address" required>
             </p>
             <p>
                 <label for="name">Name:</label><br>
@@ -66,8 +75,8 @@
                 <input type="text" id="server-name" name="name" required>
             </p>
             <p>
-                <label for="ip">Address</label><br>
-                <input type="text" id="server-ip" name="ip" required>
+                <label for="address">Address</label><br>
+                <input type="text" id="server-address" name="address" required>
             </p>
             <div class="flex inline popup-buttons">
                 {% if current_user.is_authenticated %}
