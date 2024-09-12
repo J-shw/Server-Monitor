@@ -1,10 +1,9 @@
-import secrets, datetime, time
+import secrets, time, datetime
 from flask import Flask, render_template, jsonify, request, send_file, redirect, url_for, abort, session, Response
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.exc import IntegrityError
 from flask_login import UserMixin, LoginManager, login_user, logout_user, login_required, current_user
 from flask_bcrypt import Bcrypt
-from flask_login import LoginManager
 from flask_apscheduler import APScheduler
 from icmplib import ping
 from waitress import serve
@@ -16,21 +15,16 @@ scheduler = APScheduler()
 scheduler.init_app(flaskApp)
 scheduler.start()
 
-@scheduler.task('interval', id='monitor_servers', seconds=60)  # Initial interval
+@scheduler.task('interval', id='monitor_servers', seconds=0)  # Initial interval
 def monitor_servers_task():
     with flaskApp.app_context():
         config = AppConfig.query.first()
-        if not config:  # Handle case where config doesn't exist yet
-            config = AppConfig(monitoring_interval=60)
-            db.session.add(config)
-            db.session.commit()
-
         scheduler.modify_job('monitor_servers', trigger='interval', seconds=config.monitoring_interval)
         monitor_servers() 
 
 
 def monitor_servers():
-    servers = VMHosts.query.all()
+    servers = Hosts.query.all()
     for server in servers:
         host = ping(server.ip, count=1, timeout=2)
         if host.is_alive:
@@ -38,7 +32,10 @@ def monitor_servers():
             server.trip_time = host.avg_rtt
             server.last_active = datetime.datetime.now()
         else:
-            server.state = True
+            server.state = False
+            server.trip_time = None
+        log_entry = ServerStatusLog(server_id=server.id, is_online=server.state, trip_time=server.trip_time)
+        db.session.add(log_entry)
         db.session.commit()
 
 login_manager = LoginManager()
@@ -65,7 +62,7 @@ class User(UserMixin, db.Model):
     def is_active(self):
         return True
 
-class VMHosts(db.Model):
+class Hosts(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64))
     ip = db.Column(db.String(64))
@@ -73,16 +70,24 @@ class VMHosts(db.Model):
     state = db.Column(db.Boolean, default=None)
     last_active = db.Column(db.DateTime)
 
-    vms = db.relationship('VMs', backref='host', lazy=True)
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'ip': self.ip,
+            'state': self.state if self.state != None else 'None',
+            'trip_time': round(self.trip_time, 1) if self.trip_time is not None else 'Unknown',
+            'last_active': self.last_active.strftime('%Y-%m-%d %H:%M:%S') if self.last_active else 'Unknown'
+        }
 
-class VMs(db.Model):
+class ServerStatusLog(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    host_id  = db.Column(db.Integer, db.ForeignKey('vm_hosts.id'), nullable=False)
-    name = db.Column(db.String(64))
-    ip = db.Column(db.String(64))
+    server_id = db.Column(db.Integer, db.ForeignKey('hosts.id'), nullable=False)
+    timestamp = db.Column(db.DateTime, default=lambda: datetime.datetime.now())
+    is_online = db.Column(db.Boolean)
     trip_time = db.Column(db.Float)
-    state = db.Column(db.Boolean, default=False)
-    last_active = db.Column(db.DateTime)
+
+    server = db.relationship('Hosts', backref=db.backref('status_logs', lazy=True))
 
 def __repr__(self):
   return f'<User {self.username}>'
@@ -103,7 +108,7 @@ def index():
 
 @flaskApp.route('/servers')
 def display_servers():
-    servers = VMHosts.query.all()
+    servers = Hosts.query.all()
     config = AppConfig.query.first()
     return render_template('servers.html', servers=servers, config=config)
 
@@ -135,6 +140,7 @@ def login():
         return render_template('admin/login.html')
 
 @flaskApp.route('/register', methods=['GET', 'POST'])
+@login_required
 def register():
     if request.method == 'POST':
         username = request.form['username'].lower()
@@ -142,7 +148,7 @@ def register():
         confirmPassword = request.form['confirm_password']
 
         if password != confirmPassword:
-            return render_template('admin/registeration.html', error='Passwords do not match')
+            return render_template('admin/credentials.html', error='Passwords do not match', action='/register', title='Registration', page_title='Register User')
 
         hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
         new_user = User(username=username,password_hash=hashed_password)
@@ -151,45 +157,111 @@ def register():
             db.session.commit()
         except IntegrityError:
             db.session.rollback()  # Rollback the session to prevent inconsistencies
-            return render_template('admin/registeration.html', error='Username already taken')
+            return render_template('admin/credentials.html', error='Username already taken', action='/register', title='Registration', page_title='Register User')
         return redirect('/')
-    return render_template('admin/registeration.html')
+    return render_template('admin/credentials.html', action='/register', title='Registration', page_title='Register User')
 
 @flaskApp.route('/server_updates')
 def server_updates():
-    def generate():
-        while True:
-            servers = VMHosts.query.all()
-            data = jsonify(servers=[server.to_dict() for server in servers])
-            yield f"data: {data}\n\n"
-            time.sleep(5)  # Adjust the update interval as needed
+    servers = Hosts.query.all()
+    return jsonify(servers=[server.to_dict() for server in servers])
 
-    return Response(generate(), mimetype='text/event-stream')
+@flaskApp.route('/get_server/<int:id>')
+def get_server(id):
+    server = Hosts.query.get_or_404(id)
+    return jsonify(server=server.to_dict())
 
 @flaskApp.route('/add_host', methods=['GET', 'POST'])
+@login_required
 def add_host():
     if request.method == 'POST':
         ip = request.form.get('ip')
         name = request.form.get('name')
         if name:  # Basic validation: check if the name is provided
-            new_host = VMHosts(name=name, ip=ip)
+            new_host = Hosts(name=name, ip=ip)
             db.session.add(new_host)
             db.session.commit()
             return redirect(url_for('display_servers'))
     return render_template('add_host.html')
 
+@flaskApp.route('/update_host', methods=['GET', 'POST'])
+@login_required
+def update_host():
+    if request.method == 'POST':
+        ip = request.form.get('ip')
+        name = request.form.get('name')
+        if name:  # Basic validation: check if the name is provided
+            new_host = Hosts(name=name, ip=ip)
+            db.session.add(new_host)
+            db.session.commit()
+            return redirect(url_for('display_servers'))
+    return render_template('add_host.html')
+
+@flaskApp.route('/update_login', methods=['GET','POST'])
+@login_required
+def update_login():
+    if request.method == 'POST':
+        username = request.form['username'].lower()
+        password = request.form['password']
+        confirmPassword = request.form['confirm_password']
+
+        if password != confirmPassword:
+            return render_template('admin/credentials.html', error='Passwords do not match', action='/update_login', title='Update Login', page_title='Update User Credentials')
+
+        current_user_id = current_user.id
+
+        # Fetch the existing user record
+        user_to_update = User.query.get(current_user_id) 
+
+        if user_to_update:
+            user_to_update.username = username
+            user_to_update.password_hash = bcrypt.generate_password_hash(password).decode('utf-8')
+
+            try:
+                db.session.commit()
+            except IntegrityError:
+                db.session.rollback()  # Rollback the session to prevent inconsistencies
+                return render_template('admin/credentials.html', error='Username already taken', action='/update_login', title='Update Login', page_title='Update User Credentials')
+            return redirect('/')
+    return render_template('admin/credentials.html', action='/update_login', title='Update Login', page_title='Update User Credentials')
+
 @flaskApp.route('/change_interval', methods=['POST'])
+@login_required
 def change_interval():
     new_interval = int(request.form.get('interval'))
     config = AppConfig.query.first()
     config.monitoring_interval = new_interval
     db.session.commit()
-    return 'Interval changed successfully'
+    return redirect(url_for('display_servers'))
+
+@flaskApp.route('/delete/server/<int:id>')
+@login_required
+def delete_server(id):
+    host = Hosts.query.get_or_404(id)
+    ServerStatusLog.query.filter_by(server_id=host.id).delete()
+    db.session.delete(host)
+    db.session.commit()
+    return redirect(url_for('display_servers'))
 
 if __name__ == '__main__':
     try:
         with flaskApp.app_context():
             db.create_all()
+
+            # DataBase initialise
+            config = AppConfig.query.first()
+            if not config:  # Handle case where config doesn't exist yet
+                config = AppConfig(monitoring_interval=60)
+                db.session.add(config)
+                db.session.commit()
+            
+            user = User.query.first()
+            if not user: # Creates default User admin
+                hashed_password = bcrypt.generate_password_hash('admin').decode('utf-8')
+                new_user = User(username='admin',password_hash=hashed_password)
+                db.session.add(new_user)
+                db.session.commit()
+
     except Exception as e:
         print(f'Failed to create local databse: {e}')
     try:

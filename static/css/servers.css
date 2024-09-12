@@ -4,32 +4,27 @@
     Whitesmoke - rgb(2,4,9)
     */
 
-    th {
-        background-color: #f2f2f2;
-        border-top: 1px solid #ccc;
-        border-bottom: 1px solid #ccc;
+    tbody tr:hover {
+        background-color: whitesmoke;
     }
-
-    td {
-        border-top: 1px solid #ccc;
-        border-bottom: 1px solid #ccc;
+    tbody tr {
+        box-shadow: 0 0 10px 1px rgba(0, 0, 0, 0.1);
     }
 }
 @media (prefers-color-scheme: dark) {
-    th {
-        background-color: rgb(2,4,9);
-        border-top: 1px solid rgb(34,38,44);
-        border-bottom: 1px solid rgb(34,38,44);
-    }
 
-    td {
-        border-top: 1px solid rgb(34,38,44);
-        border-bottom: 1px solid rgb(34,38,44);
+    tbody tr:hover {
+        background-color: rgb(2,4,9);
+    }
+    tbody tr {
+        box-shadow: 0 0 10px 1px rgba(80, 80, 82, 0.1);
     }
 }
 table {
-    width: 100%;
-    border-collapse: collapse;
+    width: 90%;
+    margin: 0 auto 0 auto;
+    border-collapse: separate;
+    border-spacing: 0 15px
 }
 th {
     text-align: left;
@@ -38,9 +33,15 @@ th {
     padding: 5px 5px;
 }
 td {
-    padding: 5px 5px;
+    padding: 15px;
     text-align: center;
     font-size: small;
+    margin-top: 25px;
+    font-size: large;
+}
+tbody tr {
+    border-radius: 5px;
+    padding: 5px;
 }
 
 .server-state {

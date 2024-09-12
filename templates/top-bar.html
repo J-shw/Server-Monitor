@@ -1,0 +1,22 @@
+<div id="top-bar" class="top-bar">
+    <img id="check-config-icon" src="static/data/images/server.png" class="invertImg" style="width: 25px;">
+    <div class="counters" style="flex: 30%;">
+        <div style="display: flex;" class="online-checkbox">
+            <input id="online-checkbox" type="checkbox" checked>
+            <p>Online </p>
+            <p id="online-total"></p>
+        </div>
+        <div style="display: flex;" class="offline-checkbox">
+            <input id="offline-checkbox" type="checkbox" checked>
+            <p>Offline </p>
+            <p id="offline-total"></p>
+        </div>
+    </div>
+    {% if not current_user.is_authenticated %}
+    <a class="button" title="Logout" href="/login">Login</a>
+    {% else %}
+    <button title="Create a new connection" onclick="showPopup('add-server-popup')">New Server</button>
+    <button title="Save current file" onclick="showPopup('interval-popup')">Set Interval</button>
+    <button title="Account options" onclick="showPopup('account-popup')">Account</button>
+	{% endif %}
+</div>

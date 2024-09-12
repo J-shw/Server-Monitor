@@ -1,0 +1,53 @@
+@media (prefers-color-scheme: light) {
+    /*
+    White - rgb(14,17,22)
+    Whitesmoke - rgb(2,4,9)
+    */
+    .online-checkbox {
+        background-color: #c0e5c6;
+    }
+    .offline-checkbox {
+        background-color: #e7ccc7;
+    }
+}
+@media (prefers-color-scheme: dark) {
+    .online-checkbox {
+        background-color: #009518;
+    }
+    .offline-checkbox {
+        background-color: #dd2c0b;
+    }
+}
+
+.top-bar {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 5px;
+}
+
+.counters {
+    display: flex;
+    gap: 5px;
+}
+.counters > * {
+    font-size: large;
+    gap: 5px;
+    border-radius: 5px;
+    padding: 5px;
+}
+.counters > div > * {
+    flex: 1;
+    text-align: center;
+}
+.counters > div > input {
+    accent-color: white;
+}
+
+.buttons img {
+    width: 25px;
+}
+.buttons img:hover {
+    cursor: pointer;
+    opacity: 0.8;
+}

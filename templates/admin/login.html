@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../static/css/style.css">
+    <link rel="stylesheet" href="../static/css/nav.css">
+    <link rel="stylesheet" href="../static/css/admin/login.css">
+    <link rel="icon" type="image/x-icon" href="/static/data/images/server.png">
+    <title>Login</title>
+</head>
+<body>
+    <div class="login-div">
+        <p class="title">Login</p>
+
+        <form action="/login" method="post">
+            <div class="inputs">
+                <input id="username" name="username" placeholder="Username" type="text" required>
+                <input id="password" name="password" placeholder="Password" type="password" required>
+            </div>
+            {% if error %}
+                <p style="color: red;">{{ error }}</p>
+            {% endif %}
+            <div class="login-buttons">
+                <input type="submit" value="Login">
+                <a href="/" class="button" style="font-size: x-large;">Cancel</a>
+            </div>
+        </form>
+    </div>
+    
+</body>
+</html>

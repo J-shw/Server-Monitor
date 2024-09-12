@@ -5,10 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/static/css/style.css">
     <link rel="stylesheet" href="/static/css/servers.css">
+    <link rel="stylesheet" href="/static/css/top-bar.css">
+    <link rel="stylesheet" href="/static/css/popup.css">
+    <script src="/static/script/display.js"></script>
+    <link rel="icon" type="image/x-icon" href="/static/data/images/server.png">
     <title>Server Monitor</title>
 </head>
+<div id="blanket" class="hidden"></div>
 <body>
-    <h1>Servers - Interval {{ config.monitoring_interval }} Seconds</h1>
+    {% include 'top-bar.html' %}
     <table>
         <thead>
             <tr>
@@ -20,30 +25,70 @@
             </tr>
         </thead>
         <tbody id="servers-table">
-            {% for server in servers %}
-                <tr id="{{server.id}}">
-                    <td>
-                        <p class="server-state server-state-{{server.state}}"></p>
-                    </td>
-                    <td>{{ server.name }}</td>
-                    <td>{{ server.ip }}</td>
-                    <td>
-                        {% if server.last_active != None %}
-                            {{ server.trip_time | round(1)}}
-                        {% else %}
-                            Unknown
-                        {% endif %}
-                    </td>
-                    <td>
-                        {% if server.last_active != None %}
-                            {{ server.last_active.strftime('%Y-%m-%d %H:%M:%S') }}
-                        {% else %}
-                            Unknown
-                        {% endif %}
-                    </td> 
-                </tr>
-            {% endfor %}
         </tbody>
     </table>
+
+    <div id="add-server-popup" class="popup add-server-popup hidden">
+        <form method="POST" action="{{ url_for('add_host') }}">
+            <p>
+                <label for="ip">IP Address:</label><br>
+                <input type="text" id="ip" name="ip" required>
+            </p>
+            <p>
+                <label for="name">Name:</label><br>
+                <input type="text" id="name" name="name" required>
+            </p>
+            <div class="flex inline popup-buttons">
+                <input type="submit" value="Add Host">
+                <button type="button" onclick="hidePopup('add-server-popup')">Cancel</button>
+            </div>
+        </form>  
+    </div>
+
+    <div id="interval-popup" class="popup interval-popup hidden">
+        <form method="POST" action="{{ url_for('change_interval') }}">
+            <p>
+                <label for="interval">Interval:</label><br>
+                <input type="number" id="interval" name="interval" required value="{{ config.monitoring_interval }}">
+            </p>
+            <div class="flex inline popup-buttons">
+                <input type="submit" value="Update interval">
+                <button type="button" onclick="hidePopup('interval-popup')">Cancel</button>
+            </div>
+        </form>  
+    </div>
+
+    <div id="server-popup" class="popup server-popup hidden">
+        <input id="server-id" class="hidden">
+        <form method="POST" action="{{ url_for('update_host') }}">
+            <p>
+                <label for="name">Name</label><br>
+                <input type="text" id="server-name" name="name" required>
+            </p>
+            <p>
+                <label for="ip">IP</label><br>
+                <input type="text" id="server-ip" name="ip" required>
+            </p>
+            <div class="flex inline popup-buttons">
+                {% if current_user.is_authenticated %}
+                <input type="submit" value="Save">
+                <button  type="button" onclick="deleteServer()">Delete</button>
+                {% endif %}
+                <button type="button" onclick="hidePopup('server-popup')">Close</button>
+            </div>
+        </form>  
+    </div>
+
+    <div id="account-popup" class="popup account-popup hidden">
+        <a class="button" title="Logout" href="/logout">Logout</a>
+        <a class="button" title="Logout" href="/register">Register User</a>
+        <a class="button" title="Logout" href="/update_login">Update Login</a>
+        <div class="flex inline popup-buttons">
+            <button type="button" onclick="hidePopup('account-popup')">Close</button>
+        </div>
+    </div>
+
+    </div>
 </body>
+<script src="/static/script/servers.js"></script>
 </html>
