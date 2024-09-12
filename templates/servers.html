@@ -19,7 +19,7 @@
             <tr>
                 <th>State</th>
                 <th>Server Name</th>
-                <th>IP Address</th>
+                <th>Address</th>
                 <th>Trip Time (ms)</th>
                 <th>Last Active</th>
             </tr>
@@ -31,7 +31,7 @@
     <div id="add-server-popup" class="popup add-server-popup hidden">
         <form method="POST" action="{{ url_for('add_host') }}">
             <p>
-                <label for="ip">IP Address:</label><br>
+                <label for="ip">Address:</label><br>
                 <input type="text" id="ip" name="ip" required>
             </p>
             <p>
@@ -59,14 +59,14 @@
     </div>
 
     <div id="server-popup" class="popup server-popup hidden">
-        <input id="server-id" class="hidden">
         <form method="POST" action="{{ url_for('update_host') }}">
+            <input id="server-id" name="id" class="hidden">
             <p>
                 <label for="name">Name</label><br>
                 <input type="text" id="server-name" name="name" required>
             </p>
             <p>
-                <label for="ip">IP</label><br>
+                <label for="ip">Address</label><br>
                 <input type="text" id="server-ip" name="ip" required>
             </p>
             <div class="flex inline popup-buttons">

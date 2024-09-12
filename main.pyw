@@ -184,18 +184,22 @@ def add_host():
             return redirect(url_for('display_servers'))
     return render_template('add_host.html')
 
-@flaskApp.route('/update_host', methods=['GET', 'POST'])
+@flaskApp.route('/update_host', methods=['POST'])
 @login_required
 def update_host():
-    if request.method == 'POST':
-        ip = request.form.get('ip')
-        name = request.form.get('name')
-        if name:  # Basic validation: check if the name is provided
-            new_host = Hosts(name=name, ip=ip)
-            db.session.add(new_host)
-            db.session.commit()
-            return redirect(url_for('display_servers'))
-    return render_template('add_host.html')
+    id = request.form.get('id')
+    ip = request.form.get('ip')
+    name = request.form.get('name')
+
+    host_to_update = Hosts.query.get(id) 
+
+    if host_to_update:
+        host_to_update.ip = ip
+        host_to_update.name = name
+
+        db.session.commit()
+        return redirect(url_for('display_servers'))
+    return 'failed'
 
 @flaskApp.route('/update_login', methods=['GET','POST'])
 @login_required
