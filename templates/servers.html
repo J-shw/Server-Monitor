@@ -34,16 +34,16 @@
         <form method="POST" action="{{ url_for('add_host') }}">
             <p>
                 <label for="check_type">Check type</label><br>
-                <select name="check_type" required>
+                <select name="check_type" id="add_check_type" required>
                     <option value="ping" selected>Ping</option>
                     <option value="fetch">Fetch</option>
                 </select>
             </p>
-            <p id="web-scheme">
+            <p id="web-scheme" class="hidden">
                 <label for="scheme">Scheme</label><br>
                 <select name="scheme" required>
                     <option value="https://" selected>HTTPS</option>
-                    <option value="http://" selected>HTTP</option>
+                    <option value="http://">HTTP</option>
                 </select>
             </p>
             <p>
@@ -64,7 +64,7 @@
     <div id="interval-popup" class="popup interval-popup hidden">
         <form method="POST" action="{{ url_for('change_interval') }}">
             <p>
-                <label for="interval">Interval:</label><br>
+                <label for="interval">Interval</label><br>
                 <input type="number" id="interval" name="interval" required value="{{ config.monitoring_interval }}">
             </p>
             <div class="flex inline popup-buttons">
@@ -82,6 +82,13 @@
                 <select id="server-check-type" name="check_type" required>
                     <option value="ping">Ping</option>
                     <option value="fetch">Fetch</option>
+                </select>
+            </p>
+            <p id="server-scheme-box" class="hidden">
+                <label for="scheme">Scheme</label><br>
+                <select name="scheme" id="server-scheme" required>
+                    <option value="https://" selected>HTTPS</option>
+                    <option value="http://">HTTP</option>
                 </select>
             </p>
             <p>

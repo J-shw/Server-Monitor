@@ -17,6 +17,26 @@ disabledCheckbox.addEventListener('change', function(event) {
     }
 });
 
+document.getElementById('add_check_type').addEventListener('change', function(event) {
+  let value = document.getElementById('add_check_type').value
+  console.log(value)
+  if (value == 'ping'){
+    document.getElementById('web-scheme').classList.add('hidden');
+  }else{
+    document.getElementById('web-scheme').classList.remove('hidden');
+  }
+});
+
+document.getElementById('server-check-type').addEventListener('change', function(event) {
+  let value = document.getElementById('server-check-type').value
+
+  if (value == 'ping'){
+    document.getElementById('server-scheme-box').classList.add('hidden');
+  }else{
+    document.getElementById('server-scheme-box').classList.remove('hidden');
+  }
+});
+
 function show(className){
     let elements = document.getElementsByClassName(className);
     Array.from(elements).forEach(element => {
@@ -81,6 +101,12 @@ function rowClick(id){
           document.getElementById('server-name').value = SERVER.name;
           document.getElementById('server-address').value = SERVER.address;
           document.getElementById('server-check-type').value = SERVER.check_type.toLowerCase()
+
+          if (SERVER.check_type != 'Ping'){ // Hides scheme selection if ping
+            document.getElementById('server-scheme-box').classList.add('hidden')
+          }else{
+            document.getElementById('server-scheme').value = SERVER.scheme;
+          }
 
           showPopup("server-popup");
     });
