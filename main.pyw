@@ -26,29 +26,32 @@ def monitor_servers_task():
 def monitor_servers():
     servers = Hosts.query.all()
     for server in servers:
-        if server.check_type == 'ping':
-            host = ping(server.address, count=1, timeout=2)
-            if host.is_alive:
-                server.state = True
-                server.trip_time = host.avg_rtt
-                server.last_active = datetime.datetime.now()
-            else:
-                server.state = False
-                server.trip_time = None
-            log_entry = ServerStatusLog(server_id=server.id, is_online=server.state, trip_time=server.trip_time)
-        elif server.check_type == 'fetch':
-            response = requests.get(server.address, timeout=5)
-            if  response.status_code == 200:
-                server.state = True
-                server.last_active = datetime.datetime.now()
-            else:
-                server.state = False
+        try:
+            if server.check_type == 'ping':
+                host = ping(server.address, count=1, timeout=2)
+                if host.is_alive:
+                    server.state = True
+                    server.trip_time = host.avg_rtt
+                    server.last_active = datetime.datetime.now()
+                else:
+                    server.state = False
+                    server.trip_time = None
+                log_entry = ServerStatusLog(server_id=server.id, is_online=server.state, trip_time=server.trip_time)
+            elif server.check_type == 'fetch':
+                response = requests.get(f'{server.scheme}{server.address}', timeout=5)
+                if  response.status_code == 200:
+                    server.state = True
+                    server.last_active = datetime.datetime.now()
+                else:
+                    server.state = False
 
-            server.response_code = response.status_code
-            log_entry = ServerStatusLog(server_id=server.id, is_online=server.state, response_code=server.response_code)
+                server.response_code = response.status_code
+                log_entry = ServerStatusLog(server_id=server.id, is_online=server.state, response_code=server.response_code)
 
-        db.session.add(log_entry)
-        db.session.commit()
+            db.session.add(log_entry)
+            db.session.commit()
+        except Exception as e:
+            print(f'failed to check {server.address} - {e}')
 
 login_manager = LoginManager()
 login_manager.init_app(flaskApp)
@@ -83,6 +86,7 @@ class Hosts(db.Model):
     state = db.Column(db.Boolean, default=None)
     last_active = db.Column(db.DateTime)
     check_type = db.Column(db.String(64)) # Can be 'ping' or 'fetch'
+    web_scheme = db.Column(db.String(64)) # https:// | http:// etc..
 
     def to_dict(self):
         return {
@@ -195,8 +199,9 @@ def add_host():
         address = request.form.get('address')
         name = request.form.get('name')
         check_type = request.form.get('check_type')
+        scheme = request.form.get('scheme')
         if name:  # Basic validation: check if the name is provided
-            new_host = Hosts(name=name, address=address, check_type=check_type)
+            new_host = Hosts(name=name, address=address, check_type=check_type, scheme=scheme)
             db.session.add(new_host)
             db.session.commit()
             return redirect(url_for('display_servers'))
