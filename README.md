@@ -8,10 +8,10 @@ The system tracks which systems are on/offline.
 - Historic data is captured (Not yet displayed)
 - Login system for adding more servers (Default Username: admin | Password: admin)
 - Basic filtering of Online/Offline (Better options are planned)
+- Supports host names, Ip Addresses and URLs
 
 ## Server list page
-![Screenshot 2024-09-12 at 10-48-24 Server Monitor](https://github.com/user-attachments/assets/b55856aa-13be-4ccf-ad8d-0f5ad4a71971)
-
+![Screenshot 2024-09-12 at 11-35-31 Server Monitor](https://github.com/user-attachments/assets/24764838-8e3b-4409-929d-7c5a8427bd81)
 
 ## Login system
 ![Screenshot 2024-09-12 at 10-48-39 Login](https://github.com/user-attachments/assets/d4763e35-1cae-4ab8-aeb0-8b69bdb59d60)
@@ -20,7 +20,7 @@ The system tracks which systems are on/offline.
 
 As of now I have not made an installer script.
 
-Please install python [https://www.python.org/]
+Please install [python](https://www.python.org/)
 
 Then install using pip:
 - Flask
