@@ -79,7 +79,7 @@ function rowClick(id){
         
           document.getElementById('server-id').value = SERVER.id;
           document.getElementById('server-name').value = SERVER.name;
-          document.getElementById('server-ip').value = SERVER.ip;
+          document.getElementById('server-address').value = SERVER.address;
 
           showPopup("server-popup");
     });
