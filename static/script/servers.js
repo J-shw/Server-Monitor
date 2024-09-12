@@ -102,9 +102,10 @@ function rowClick(id){
           document.getElementById('server-address').value = SERVER.address;
           document.getElementById('server-check-type').value = SERVER.check_type.toLowerCase()
 
-          if (SERVER.check_type != 'Ping'){ // Hides scheme selection if ping
+          if (SERVER.check_type == 'Ping'){ // Hides scheme selection if ping
             document.getElementById('server-scheme-box').classList.add('hidden')
           }else{
+            document.getElementById('server-scheme-box').classList.remove('hidden')
             document.getElementById('server-scheme').value = SERVER.scheme;
           }
 

@@ -215,6 +215,7 @@ def update_host():
     address = request.form.get('address')
     name = request.form.get('name')
     check_type = request.form.get('check_type')
+    scheme = request.form.get('scheme')
 
     host_to_update = Hosts.query.get(id) 
 
@@ -222,6 +223,7 @@ def update_host():
         host_to_update.address = address
         host_to_update.name = name
         host_to_update.check_type = check_type
+        host_to_update.scheme = scheme
 
         db.session.commit()
         return redirect(url_for('display_servers'))
