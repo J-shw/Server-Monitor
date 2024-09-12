@@ -208,12 +208,14 @@ def update_host():
     id = request.form.get('id')
     address = request.form.get('address')
     name = request.form.get('name')
+    check_type = request.form.get('check_type')
 
     host_to_update = Hosts.query.get(id) 
 
     if host_to_update:
         host_to_update.address = address
         host_to_update.name = name
+        host_to_update.check_type = check_type
 
         db.session.commit()
         return redirect(url_for('display_servers'))

@@ -33,7 +33,7 @@
     <div id="add-server-popup" class="popup add-server-popup hidden">
         <form method="POST" action="{{ url_for('add_host') }}">
             <p>
-                <label for="check-type">Address:</label><br>
+                <label for="check-type">Check type:</label><br>
                 <select id="check-type" name="check_type" required>
                     <option value="ping" selected>Ping</option>
                     <option value="fetch">Fetch</option>
@@ -70,6 +70,13 @@
     <div id="server-popup" class="popup server-popup hidden">
         <form method="POST" action="{{ url_for('update_host') }}">
             <input id="server-id" name="id" class="hidden">
+            <p>
+                <label for="check-type">Check type:</label><br>
+                <select id="check-type" name="check_type" required>
+                    <option value="ping" selected>Ping</option>
+                    <option value="fetch">Fetch</option>
+                </select>
+            </p>
             <p>
                 <label for="name">Name</label><br>
                 <input type="text" id="server-name" name="name" required>
