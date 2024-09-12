@@ -1,5 +1,6 @@
 # Flask Server monitor
-This is a simple ping monitoring system. A ping request is sent out at the interval desired (60 seconds i the default)
+This is a simple ping/fetch monitoring system. A ping or fetch request is sent out at the interval desired (60 seconds is the default)
+
 The system tracks which systems are on/offline. 
 
 ## Features
@@ -9,9 +10,11 @@ The system tracks which systems are on/offline.
 - Login system for adding more servers (Default Username: admin | Password: admin)
 - Basic filtering of Online/Offline (Better options are planned)
 - Supports host names, Ip Addresses and URLs
+- Fetch or ping requests
 
 ## Server list page
-![Screenshot 2024-09-12 at 11-35-31 Server Monitor](https://github.com/user-attachments/assets/24764838-8e3b-4409-929d-7c5a8427bd81)
+![Screenshot 2024-09-12 at 16-16-59 Server Monitor](https://github.com/user-attachments/assets/c949709b-9402-40fc-83c8-b00d31f34583)
+
 
 ## Login system
 ![Screenshot 2024-09-12 at 10-48-39 Login](https://github.com/user-attachments/assets/d4763e35-1cae-4ab8-aeb0-8b69bdb59d60)
