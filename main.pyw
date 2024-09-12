@@ -86,7 +86,7 @@ class Hosts(db.Model):
     state = db.Column(db.Boolean, default=None)
     last_active = db.Column(db.DateTime)
     check_type = db.Column(db.String(64)) # Can be 'ping' or 'fetch'
-    web_scheme = db.Column(db.String(64)) # https:// | http:// etc..
+    scheme = db.Column(db.String(64)) # https:// | http:// etc..
 
     def to_dict(self):
         return {
@@ -97,7 +97,8 @@ class Hosts(db.Model):
             'trip_time': round(self.trip_time, 1) if self.trip_time is not None else 'Unknown',
             'response_code':self.response_code if self.response_code is not None else 'Unknown',
             'last_active': self.last_active.strftime('%Y-%m-%d %H:%M:%S') if self.last_active else 'Unknown',
-            'check_type': self.check_type.capitalize()
+            'check_type': self.check_type.capitalize(),
+            'scheme': self.scheme
         }
 
 class ServerStatusLog(db.Model):
