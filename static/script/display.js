@@ -49,16 +49,33 @@ function update_element(server){
     if ((!online & server.state==='True') || (!offline & server.state==='False')){
         row.classList.add('hidden')
     }
+
+    let dataHTML = `
+    <td>
+        ${server.trip_time}
+    </td>
+    <td></td>
+    `
+    if (server.check_type == 'Fetch'){
+        dataHTML = `
+        <td></td>
+        <td>
+            ${server.response_code}
+        </td>
+        `
+    }
+
     row.classList.add(`row-${server.state}`)
     row.innerHTML = `
     <td>
         <p class="server-state server-state-${server.state}"></p>
     </td>
-    <td>${server.name}</td>
-    <td>${server.ip}</td>
     <td>
-        ${server.trip_time}
+        ${server.check_type}
     </td>
+    <td>${server.name}</td>
+    <td>${server.address}</td>
+    ${dataHTML}
     <td>
         ${server.last_active}
     </td>
@@ -79,6 +96,20 @@ function create_element(server){
     if ((!online & server.state==='True') || (!offline & server.state==='False')){
         row.className.add('hidden')
     }
+    let dataHTML = `
+    <td>
+        ${server.trip_time}
+    </td>
+    <td></td>
+    `
+    if (server.check_type == 'Fetch'){
+        dataHTML = `
+        <td></td>
+        <td>
+            ${server.response_code}
+        </td>
+        `
+    }
 
     row.id = server.id
     row.classList.add(`row-${server.state}`)
@@ -86,11 +117,12 @@ function create_element(server){
     <td>
         <p class="server-state server-state-${server.state}"></p>
     </td>
-    <td>${server.name}</td>
-    <td>${server.ip}</td>
     <td>
-        ${server.trip_time}
+        ${server.check_type}
     </td>
+    <td>${server.name}</td>
+    <td>${server.address}</td>
+    ${dataHTML}
     <td>
         ${server.last_active}
     </td>

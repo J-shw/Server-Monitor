@@ -1,4 +1,4 @@
-import secrets, time, datetime
+import secrets, datetime, requests
 from flask import Flask, render_template, jsonify, request, send_file, redirect, url_for, abort, session, Response
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.exc import IntegrityError
@@ -26,15 +26,27 @@ def monitor_servers_task():
 def monitor_servers():
     servers = Hosts.query.all()
     for server in servers:
-        host = ping(server.ip, count=1, timeout=2)
-        if host.is_alive:
-            server.state = True
-            server.trip_time = host.avg_rtt
-            server.last_active = datetime.datetime.now()
-        else:
-            server.state = False
-            server.trip_time = None
-        log_entry = ServerStatusLog(server_id=server.id, is_online=server.state, trip_time=server.trip_time)
+        if server.check_type == 'ping':
+            host = ping(server.address, count=1, timeout=2)
+            if host.is_alive:
+                server.state = True
+                server.trip_time = host.avg_rtt
+                server.last_active = datetime.datetime.now()
+            else:
+                server.state = False
+                server.trip_time = None
+            log_entry = ServerStatusLog(server_id=server.id, is_online=server.state, trip_time=server.trip_time)
+        elif server.check_type == 'fetch':
+            response = requests.get(server.address, timeout=5)
+            if  response.status_code == 200:
+                server.state = True
+                server.last_active = datetime.datetime.now()
+            else:
+                server.state = False
+
+            server.response_code = response.status_code
+            log_entry = ServerStatusLog(server_id=server.id, is_online=server.state, response_code=server.response_code)
+
         db.session.add(log_entry)
         db.session.commit()
 
@@ -65,19 +77,23 @@ class User(UserMixin, db.Model):
 class Hosts(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64))
-    ip = db.Column(db.String(64))
+    address = db.Column(db.String(64))
     trip_time = db.Column(db.Float)
+    response_code = db.Column(db.Integer)
     state = db.Column(db.Boolean, default=None)
     last_active = db.Column(db.DateTime)
+    check_type = db.Column(db.String(64)) # Can be 'ping' or 'fetch'
 
     def to_dict(self):
         return {
             'id': self.id,
             'name': self.name,
-            'ip': self.ip,
+            'address': self.address,
             'state': self.state if self.state != None else 'None',
             'trip_time': round(self.trip_time, 1) if self.trip_time is not None else 'Unknown',
-            'last_active': self.last_active.strftime('%Y-%m-%d %H:%M:%S') if self.last_active else 'Unknown'
+            'response_code':self.response_code if self.response_code is not None else 'Unknown',
+            'last_active': self.last_active.strftime('%Y-%m-%d %H:%M:%S') if self.last_active else 'Unknown',
+            'check_type': self.check_type.capitalize()
         }
 
 class ServerStatusLog(db.Model):
@@ -86,6 +102,7 @@ class ServerStatusLog(db.Model):
     timestamp = db.Column(db.DateTime, default=lambda: datetime.datetime.now())
     is_online = db.Column(db.Boolean)
     trip_time = db.Column(db.Float)
+    response_code = db.Column(db.Integer)
 
     server = db.relationship('Hosts', backref=db.backref('status_logs', lazy=True))
 
@@ -175,10 +192,11 @@ def get_server(id):
 @login_required
 def add_host():
     if request.method == 'POST':
-        ip = request.form.get('ip')
+        address = request.form.get('address')
         name = request.form.get('name')
+        check_type = request.form.get('check_type')
         if name:  # Basic validation: check if the name is provided
-            new_host = Hosts(name=name, ip=ip)
+            new_host = Hosts(name=name, address=address, check_type=check_type)
             db.session.add(new_host)
             db.session.commit()
             return redirect(url_for('display_servers'))
@@ -188,14 +206,16 @@ def add_host():
 @login_required
 def update_host():
     id = request.form.get('id')
-    ip = request.form.get('ip')
+    address = request.form.get('address')
     name = request.form.get('name')
+    check_type = request.form.get('check_type')
 
     host_to_update = Hosts.query.get(id) 
 
     if host_to_update:
-        host_to_update.ip = ip
+        host_to_update.address = address
         host_to_update.name = name
+        host_to_update.check_type = check_type
 
         db.session.commit()
         return redirect(url_for('display_servers'))
