@@ -33,18 +33,18 @@
     <div id="add-server-popup" class="popup add-server-popup hidden">
         <form method="POST" action="{{ url_for('add_host') }}">
             <p>
-                <label for="check-type">Check type:</label><br>
-                <select id="check-type" name="check_type" required>
+                <label for="check_type">Check type</label><br>
+                <select name="check_type" required>
                     <option value="ping" selected>Ping</option>
                     <option value="fetch">Fetch</option>
                 </select>
             </p>
             <p>
-                <label for="address">Address:</label><br>
+                <label for="address">Address</label><br>
                 <input type="text" id="address" name="address" required>
             </p>
             <p>
-                <label for="name">Name:</label><br>
+                <label for="name">Name</label><br>
                 <input type="text" id="name" name="name" required>
             </p>
             <div class="flex inline popup-buttons">
@@ -71,9 +71,9 @@
         <form method="POST" action="{{ url_for('update_host') }}">
             <input id="server-id" name="id" class="hidden">
             <p>
-                <label for="check-type">Check type:</label><br>
-                <select id="check-type" name="check_type" required>
-                    <option value="ping" selected>Ping</option>
+                <label for="check_type">Check type</label><br>
+                <select id="server-check-type" name="check_type" required>
+                    <option value="ping">Ping</option>
                     <option value="fetch">Fetch</option>
                 </select>
             </p>

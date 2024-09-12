@@ -80,6 +80,7 @@ function rowClick(id){
           document.getElementById('server-id').value = SERVER.id;
           document.getElementById('server-name').value = SERVER.name;
           document.getElementById('server-address').value = SERVER.address;
+          document.getElementById('server-check-type').value = SERVER.check_type.toLowerCase()
 
           showPopup("server-popup");
     });
