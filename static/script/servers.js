@@ -117,9 +117,10 @@ function rowClick(id){
             document.getElementById('server-scheme').value = SERVER.scheme;
           }
 
+          loadPingGraph(id, SERVER.check_type.toLowerCase())
+
           showSidebar("server-sidebar");
     });
-    loadPingGraph(id)
 }
 
 update_servers()

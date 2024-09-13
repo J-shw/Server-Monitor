@@ -1,8 +1,8 @@
 let graph_1;
 let graph_2;
 
-function loadPingGraph(id){
-    url = '/get_pings/'+id
+function loadPingGraph(id, type){
+    url = '/get_logs/'+id
     fetch(url)
     .then(response => response.json())
     .then(strResponse=>{
@@ -33,58 +33,62 @@ function loadPingGraph(id){
         const GRAPH_1_ELEMENT = document.getElementById('graph-1')
         const GRAPH_2_ELEMENT = document.getElementById('graph-2')
 
-        const g1ctx = GRAPH_1_ELEMENT.getContext('2d');
-        const g2ctx = GRAPH_2_ELEMENT.getContext('2d');
         if (graph_1) {
             graph_1.destroy();
         }
         if (graph_2) {
             graph_2.destroy();
         }
-
-        graph_1 = new Chart(g1ctx, {
-            type: 'line', // or another suitable chart type
-            data: {
-                datasets: [{
-                    data: graph_1_data, // Use the populated graph_1_data array
-                    borderColor: 'rgba(75, 192, 192, 1)',
-                    tension: 0.1,
-                    pointRadius: 0, // Set point radius to 0 to hide data points
-                    fill: true, // Fill the area under the line
-                    backgroundColor: 'rgba(75, 192, 192, 0.2)' // Fill color (adjust alpha for transparency)
-                }]
-            },
-            options: {
-                plugins: {
-                    legend: {
-                        display: false // Hide the legend
-                    }
+        if (type =='ping'){
+            GRAPH_1_ELEMENT.classList.remove('hidden');
+            const g1ctx = GRAPH_1_ELEMENT.getContext('2d');
+            graph_1 = new Chart(g1ctx, {
+                type: 'line', // or another suitable chart type
+                data: {
+                    datasets: [{
+                        data: graph_1_data, // Use the populated graph_1_data array
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        tension: 0.1,
+                        pointRadius: 0, // Set point radius to 0 to hide data points
+                        fill: true, // Fill the area under the line
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)' // Fill color (adjust alpha for transparency)
+                    }]
                 },
-                scales: {
-                    x: {
-                        type: 'time',
-                        time: {
-                            unit: 'second', // Or another suitable unit based on your data
-                            displayFormats: {
-                                day: 'MMM D' 
-                            }
-                        },
-                        title: {
-                            display: false,
-                            text: 'Date'
+                options: {
+                    plugins: {
+                        legend: {
+                            display: false // Hide the legend
                         }
                     },
-                    y: {
-                        beginAtZero: true,
-                        title: {
-                            display: true,
-                            text: 'Trip Time (ms)'
+                    scales: {
+                        x: {
+                            type: 'time',
+                            time: {
+                                unit: 'second', // Or another suitable unit based on your data
+                                displayFormats: {
+                                    day: 'MMM D' 
+                                }
+                            },
+                            title: {
+                                display: false,
+                                text: 'Date'
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Trip Time (ms)'
+                            }
                         }
                     }
                 }
-            }
-        });
+            });
+        }else{
+            GRAPH_1_ELEMENT.classList.add('hidden');
+        }
 
+        const g2ctx = GRAPH_2_ELEMENT.getContext('2d');
         graph_2 = new Chart(g2ctx, {
             type: 'line', // or another suitable chart type
             data: {
