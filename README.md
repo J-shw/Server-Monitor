@@ -38,5 +38,6 @@ Then install using pip:
 - Flask-APScheduler
 - icmplib
 - waitress
+- requests
 
 for example paste 'pip install flask' into command terminal
