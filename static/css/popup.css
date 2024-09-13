@@ -56,13 +56,6 @@
     margin-bottom: 5px;
 }
 
-.server-popup {
-    transform: translate(-50%, -40vh);
-}
-.server-popup form > *{
-    margin-bottom: 5px;
-}
-
 .account-popup {
     transform: translate(-50%, -40vh);
     padding: 20px;
@@ -73,4 +66,29 @@
 
 .popup-buttons {
     margin-top: 15px;
+}
+
+
+.main-div .column-right{
+    overflow: auto;
+}
+.main-div .column-right form{
+    text-align: left;
+    font-size: small;
+    text-align: center;
+}
+
+.main-div .column-right form button,
+.main-div .column-right form select,
+.main-div .column-right form input{
+    width: 100%;
+    box-shadow: none;
+}
+.main-div .column-right form p{
+    padding: 5px;
+}
+
+#server-uptime {
+    text-align: center;
+    font-size: large;
 }

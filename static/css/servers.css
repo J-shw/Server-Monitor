@@ -10,6 +10,10 @@
     tbody tr {
         box-shadow: 0 0 10px 1px rgba(0, 0, 0, 0.1);
     }
+
+    .main-div .column-right{
+        background-color: whitesmoke;
+    }
 }
 @media (prefers-color-scheme: dark) {
 
@@ -20,8 +24,25 @@
         box-shadow: 0 0 10px 1px rgba(80, 80, 82, 0.1);
     }
 }
+
+.main-div {
+    width: 100%;
+    display: flex;
+}
+.main-div .column {
+    padding: 10px;
+    height: calc(100vh - 69px);
+}
+.main-div .column-left{
+    flex: 80%;
+}
+.main-div .column-right{
+    flex: 20%;
+    border-radius: 5px 0 0 5px;
+}
+
 table {
-    width: 90%;
+    width: 100%;
     margin: 0 auto 0 auto;
     border-collapse: separate;
     border-spacing: 0 15px
