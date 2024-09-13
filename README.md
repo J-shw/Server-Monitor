@@ -6,7 +6,8 @@ The system tracks which systems are on/offline.
 ## Features
 - Simple modern UI
 - Easy traffic light system
-- Historic data is captured (Not yet displayed)
+- Historic data is captured
+- Historic data viewed
 - Login system for adding more servers (Default Username: admin | Password: admin)
 - Basic filtering of Online/Offline (Better options are planned)
 - Supports host names, Ip Addresses and URLs
@@ -14,6 +15,9 @@ The system tracks which systems are on/offline.
 
 ## Server list page
 ![Screenshot 2024-09-12 at 16-16-59 Server Monitor](https://github.com/user-attachments/assets/c949709b-9402-40fc-83c8-b00d31f34583)
+
+## Data editing & historic data
+![Screenshot 2024-09-13 at 16-00-35 Server Monitor](https://github.com/user-attachments/assets/07d973c4-f70c-408c-9b7b-9b0ad0d2b923)
 
 
 ## Login system
