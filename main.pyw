@@ -1,4 +1,5 @@
-import secrets, datetime, requests
+import secrets, requests
+from datetime import date, datetime
 from requests.exceptions import Timeout
 from flask import Flask, render_template, jsonify, request, send_file, redirect, url_for, abort, session, Response
 from flask_sqlalchemy import SQLAlchemy
@@ -33,11 +34,11 @@ def monitor_servers():
                 if host.is_alive:
                     server.state = True
                     server.trip_time = host.avg_rtt
-                    server.last_active = datetime.datetime.now()
+                    server.last_active = datetime.now()
                 else:
                     server.state = False
                     server.trip_time = None
-                log_entry = ServerStatusLog(server_id=server.id, is_online=server.state, trip_time=server.trip_time)
+                log_entry = ServerStatusLog(server_id=server.id, state=server.state, trip_time=server.trip_time)
             elif server.check_type == 'fetch':
                 response_code = 0
                 try:
@@ -46,7 +47,7 @@ def monitor_servers():
                     response_code = response.status_code
                     if  response_code == 200:
                         server.state = True
-                        server.last_active = datetime.datetime.now()
+                        server.last_active = datetime.now()
                     else:
                         server.state = False
                 except Timeout:
@@ -54,7 +55,7 @@ def monitor_servers():
                     server.state = False
 
                 server.response_code = response_code
-                log_entry = ServerStatusLog(server_id=server.id, is_online=server.state, response_code=server.response_code)
+                log_entry = ServerStatusLog(server_id=server.id, state=server.state, response_code=server.response_code)
 
             db.session.add(log_entry)
             db.session.commit()
@@ -112,10 +113,22 @@ class Hosts(db.Model):
 class ServerStatusLog(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     server_id = db.Column(db.Integer, db.ForeignKey('hosts.id'), nullable=False)
-    timestamp = db.Column(db.DateTime, default=lambda: datetime.datetime.now())
-    is_online = db.Column(db.Boolean)
+    timestamp = db.Column(db.DateTime, default=lambda: datetime.now())
+    unix_timestamp = db.Column(db.Float, default=lambda: datetime.now().timestamp())
+    state = db.Column(db.Boolean)
     trip_time = db.Column(db.Float)
     response_code = db.Column(db.Integer)
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'server_id': self.server_id,
+            'timestamp': self.timestamp,
+            'unix_timestamp': self.unix_timestamp,
+            'state': self.state,
+            'trip_time': round(self.trip_time, 1) if self.trip_time is not None else 0,
+            'response_code':self.response_code
+        }
 
     server = db.relationship('Hosts', backref=db.backref('status_logs', lazy=True))
 
@@ -125,7 +138,7 @@ def __repr__(self):
 @flaskApp.before_request
 def update_last_active():
     if current_user.is_authenticated:
-        current_user.last_active = datetime.datetime.now()
+        current_user.last_active = datetime.now()
         db.session.commit()
 
 @login_manager.user_loader
@@ -200,6 +213,22 @@ def server_updates():
 def get_server(id):
     server = Hosts.query.get_or_404(id)
     return jsonify(server=server.to_dict())
+
+@flaskApp.route('/get_logs/<int:id>')
+def get_logs(id):
+    today_start = datetime.combine(date.today(), datetime.min.time())
+    today_end = datetime.combine(date.today(), datetime.max.time())
+
+    logs = ServerStatusLog.query.filter_by(server_id=id) \
+                                .filter(ServerStatusLog.timestamp >= today_start) \
+                                .filter(ServerStatusLog.timestamp <= today_end) \
+                                .all()
+    if not logs:
+        # Handle the case where no logs are found (e.g., return a 404 or a custom message)
+        return jsonify({"data": None, "message": "No server status logs found for the given server_id"}), 404
+    
+    log_dicts = [log.to_dict() for log in logs]
+    return jsonify(data=log_dicts)
 
 @flaskApp.route('/add_host', methods=['GET', 'POST'])
 @login_required

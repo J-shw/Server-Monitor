@@ -81,7 +81,8 @@ button {
     transition: background-color 0.3s ease; /* Smooth background color transition on hover */
 }
 
-.button,
+select:hover,
+.button:hover,
 tbody tr:hover,
 input[type='submit']:hover,
 button:hover {

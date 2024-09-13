@@ -9,26 +9,70 @@
     <link rel="stylesheet" href="/static/css/popup.css">
     <script src="/static/script/display.js"></script>
     <link rel="icon" type="image/x-icon" href="/static/data/images/server.png">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/luxon@3"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@1"></script>
     <title>Server Monitor</title>
 </head>
 <div id="blanket" class="hidden"></div>
 <body>
     {% include 'top-bar.html' %}
-    <table>
-        <thead>
-            <tr>
-                <th>State</th>
-                <th>Check</th>
-                <th>Server Name</th>
-                <th>Address</th>
-                <th>Trip Time (ms)</th>
-                <th>HTTP Response</th>
-                <th>Last Active</th>
-            </tr>
-        </thead>
-        <tbody id="servers-table">
-        </tbody>
-    </table>
+    <div class="main-div">
+        <div class="column column-left">
+            <table>
+                <thead>
+                    <tr>
+                        <th>State</th>
+                        <th>Check</th>
+                        <th>Server Name</th>
+                        <th>Address</th>
+                        <th>Trip Time (ms)</th>
+                        <th>HTTP Response</th>
+                        <th>Last Active</th>
+                    </tr>
+                </thead>
+                <tbody id="servers-table">
+                </tbody>
+            </table>
+        </div>
+        <div class="column column-right hidden" id="server-sidebar">
+            <form method="POST" action="{{ url_for('update_host') }}">
+                <input id="server-id" name="id" class="hidden">
+                <p>
+                    <label for="check_type">Check type</label><br>
+                    <select id="server-check-type" name="check_type" required>
+                        <option value="ping">Ping</option>
+                        <option value="fetch">Fetch</option>
+                    </select>
+                </p>
+                <p id="server-scheme-box">
+                    <label for="scheme">Scheme</label><br>
+                    <select name="scheme" id="server-scheme" required>
+                        <option value="https://">HTTPS</option>
+                        <option value="http://">HTTP</option>
+                    </select>
+                </p>
+                <p>
+                    <label for="name">Name</label><br>
+                    <input type="text" id="server-name" name="name" required>
+                </p>
+                <p>
+                    <label for="address">Address</label><br>
+                    <input type="text" id="server-address" name="address" required>
+                </p>
+                <div class="flex inline popup-buttons">
+                    {% if current_user.is_authenticated %}
+                    <input type="submit" value="Save">
+                    <button  type="button" onclick="deleteServer()">Delete</button>
+                    {% endif %}
+                    <button type="button" onclick="hideSidebar('server-sidebar')">Close</button>
+                </div>
+            </form>
+            <canvas id="graph-1"></canvas>
+            <p id="server-uptime"></p>
+            <canvas id="graph-2"></canvas>
+        </div>
+    </div>
 
     <div id="add-server-popup" class="popup add-server-popup hidden">
         <form method="POST" action="{{ url_for('add_host') }}">
@@ -74,7 +118,7 @@
         </form>  
     </div>
 
-    <div id="server-popup" class="popup server-popup hidden">
+    <!-- <div id="server-popup" class="popup server-popup hidden">
         <form method="POST" action="{{ url_for('update_host') }}">
             <input id="server-id" name="id" class="hidden">
             <p>
@@ -107,7 +151,7 @@
                 <button type="button" onclick="hidePopup('server-popup')">Close</button>
             </div>
         </form>  
-    </div>
+    </div> -->
 
     <div id="account-popup" class="popup account-popup hidden">
         <a class="button" title="Logout" href="/logout">Logout</a>
@@ -121,4 +165,5 @@
     </div>
 </body>
 <script src="/static/script/servers.js"></script>
+<script src="/static/script/graphs.js"></script>
 </html>
