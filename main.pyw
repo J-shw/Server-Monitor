@@ -213,8 +213,8 @@ def get_server(id):
     server = Hosts.query.get_or_404(id)
     return jsonify(server=server.to_dict())
 
-@flaskApp.route('/get_pings/<int:id>')
-def get_pings(id):
+@flaskApp.route('/get_logs/<int:id>')
+def get_logs(id):
     logs = ServerStatusLog.query.filter_by(server_id=id).all()
     if not logs:
         # Handle the case where no logs are found (e.g., return a 404 or a custom message)
