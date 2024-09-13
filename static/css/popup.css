@@ -17,8 +17,7 @@
     top: 50%; /* Center vertically */
     left: 50%; /* Center horizontally */
     z-index: 2;
-    padding: 10px;
-    padding-bottom: 0px;
+    padding: 20px;
     border-radius: 10px;
     margin-top: 2%;
     margin-top: 25vh;
@@ -56,16 +55,8 @@
     margin-bottom: 5px;
 }
 
-.server-popup {
-    transform: translate(-50%, -40vh);
-}
-.server-popup form > *{
-    margin-bottom: 5px;
-}
-
 .account-popup {
     transform: translate(-50%, -40vh);
-    padding: 20px;
 }
 .account-popup > *{
     margin: 0 5px 0 5px;
@@ -73,4 +64,31 @@
 
 .popup-buttons {
     margin-top: 15px;
+}
+
+
+.main-div .column-right{
+    overflow: auto;
+}
+.main-div .column-right form{
+    text-align: left;
+    font-size: small;
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+.main-div .column-right form button,
+.main-div .column-right form select,
+.main-div .column-right form input{
+    width: 100%;
+    box-shadow: none;
+}
+.main-div .column-right form p{
+    padding: 5px;
+}
+
+#server-uptime {
+    text-align: center;
+    font-size: large;
+    color: rgba(128, 128, 128, 0.774);
 }
