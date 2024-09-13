@@ -69,6 +69,14 @@ function hidePopup(id){
     document.getElementById('blanket').classList.add('hidden');
 }
 
+function showSidebar(id){
+  document.getElementById(id).classList.remove('hidden');
+}
+
+function hideSidebar(id){
+  document.getElementById(id).classList.add('hidden');
+}
+
 function deleteServer(){ // Deletes the server
     let serverId = parseInt(document.getElementById('server-id').value);
     console.log(serverId)
@@ -109,8 +117,9 @@ function rowClick(id){
             document.getElementById('server-scheme').value = SERVER.scheme;
           }
 
-          showPopup("server-popup");
+          showSidebar("server-sidebar");
     });
+    loadPingGraph(id)
 }
 
 update_servers()
