@@ -7,7 +7,7 @@ The system tracks which systems are on/offline.
 - Simple modern UI
 - Easy traffic light system
 - Historic data is captured
-- Historic data viewed
+- View historic data
 - Login system for adding more servers (Default Username: admin | Password: admin)
 - Basic filtering of Online/Offline (Better options are planned)
 - Supports host names, Ip Addresses and URLs
