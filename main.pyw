@@ -1,4 +1,5 @@
-import secrets, datetime, requests
+import secrets, requests
+from datetime import date, datetime
 from requests.exceptions import Timeout
 from flask import Flask, render_template, jsonify, request, send_file, redirect, url_for, abort, session, Response
 from flask_sqlalchemy import SQLAlchemy
@@ -33,7 +34,7 @@ def monitor_servers():
                 if host.is_alive:
                     server.state = True
                     server.trip_time = host.avg_rtt
-                    server.last_active = datetime.datetime.now()
+                    server.last_active = datetime.now()
                 else:
                     server.state = False
                     server.trip_time = None
@@ -46,7 +47,7 @@ def monitor_servers():
                     response_code = response.status_code
                     if  response_code == 200:
                         server.state = True
-                        server.last_active = datetime.datetime.now()
+                        server.last_active = datetime.now()
                     else:
                         server.state = False
                 except Timeout:
@@ -112,8 +113,8 @@ class Hosts(db.Model):
 class ServerStatusLog(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     server_id = db.Column(db.Integer, db.ForeignKey('hosts.id'), nullable=False)
-    timestamp = db.Column(db.DateTime, default=lambda: datetime.datetime.now())
-    unix_timestamp = db.Column(db.Float, default=lambda: datetime.datetime.now().timestamp())
+    timestamp = db.Column(db.DateTime, default=lambda: datetime.now())
+    unix_timestamp = db.Column(db.Float, default=lambda: datetime.now().timestamp())
     state = db.Column(db.Boolean)
     trip_time = db.Column(db.Float)
     response_code = db.Column(db.Integer)
@@ -137,7 +138,7 @@ def __repr__(self):
 @flaskApp.before_request
 def update_last_active():
     if current_user.is_authenticated:
-        current_user.last_active = datetime.datetime.now()
+        current_user.last_active = datetime.now()
         db.session.commit()
 
 @login_manager.user_loader
@@ -215,7 +216,13 @@ def get_server(id):
 
 @flaskApp.route('/get_logs/<int:id>')
 def get_logs(id):
-    logs = ServerStatusLog.query.filter_by(server_id=id).all()
+    today_start = datetime.combine(date.today(), datetime.min.time())
+    today_end = datetime.combine(date.today(), datetime.max.time())
+
+    logs = ServerStatusLog.query.filter_by(server_id=id) \
+                                .filter(ServerStatusLog.timestamp >= today_start) \
+                                .filter(ServerStatusLog.timestamp <= today_end) \
+                                .all()
     if not logs:
         # Handle the case where no logs are found (e.g., return a 404 or a custom message)
         return jsonify({"data": None, "message": "No server status logs found for the given server_id"}), 404
