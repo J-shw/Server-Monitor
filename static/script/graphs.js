@@ -101,7 +101,7 @@ function loadPingGraph(id, type){
                     backgroundColor: 'rgba(75, 192, 192, 0.2)', // Fill color (adjust alpha for transparency)
                     segment: {
                         borderColor: ctx => ctx.p0.parsed.y < 1 ? 'red' : 'green', // Color based on Y-value
-                        backgroundColor: ctx => ctx.p0.parsed.y < 0.5 ? 'rgba(255, 0, 0, 0.2)' : 'rgba(0, 128, 0, 0.2)'
+                        backgroundColor: ctx => ctx.p0.parsed.y < 1 ? 'rgba(255, 0, 0, 0.2)' : 'rgba(0, 128, 0, 0.2)'
                     }
                 }]
             },
