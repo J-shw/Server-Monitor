@@ -67,10 +67,6 @@ def monitor_servers_task():
                 db.session.commit()
             except Exception as e:
                 print(f'failed to check {server.address} - {e}')
-
-background_scheduler.add_job(delete_old_logs, 'cron', id='logs_cleanup', hour=0, minute=0)  # Run daily at midnight
-background_scheduler.add_job(monitor_servers_task, 'interval', id='monitor_servers', seconds=0)  # Initial interval
-background_scheduler.start()
     
 login_manager = LoginManager()
 login_manager.init_app(flaskApp)
@@ -340,10 +336,18 @@ if __name__ == '__main__':
                 new_user = User(username='admin',password_hash=hashed_password)
                 db.session.add(new_user)
                 db.session.commit()
-
     except Exception as e:
         print(f'Failed to create local databse: {e}')
+    
+    try:
+        background_scheduler.add_job(delete_old_logs, 'cron', id='logs_cleanup', hour=0, minute=0)  # Run daily at midnight
+        background_scheduler.add_job(monitor_servers_task, 'interval', id='monitor_servers', seconds=0)  # Initial interval
+        background_scheduler.start()
+    except Exception as e:
+        print(f"Failed add background tasks: {e}")
+    
     try:
         serve(flaskApp, host="0.0.0.0", port=8080, threads=2)
     except Exception as e:
         print(f"Flask failed to be served: {e}")
+    
