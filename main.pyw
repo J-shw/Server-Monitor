@@ -31,56 +31,47 @@ def monitor_servers_task():
     with flaskApp.app_context():
         config = AppConfig.query.first()
         background_scheduler.reschedule_job('monitor_servers', trigger='interval', seconds=config.monitoring_interval)
-        monitor_servers()
+        
+        servers = Hosts.query.all()
+        for server in servers:
+            try:
+                if server.check_type == 'ping':
+                    host = ping(server.address, count=1, timeout=2)
+                    if host.is_alive:
+                        server.state = True
+                        server.trip_time = host.avg_rtt
+                        server.last_active = datetime.now()
+                    else:
+                        server.state = False
+                        server.trip_time = None
+                    log_entry = ServerStatusLog(server_id=server.id, state=server.state, trip_time=server.trip_time)
+                elif server.check_type == 'fetch':
+                    response_code = 0
+                    try:
+                        response = requests.get(f'{server.scheme}{server.address}', timeout=2)
 
-# @scheduler.task('interval', id='monitor_servers', seconds=0)  # Initial interval
-# def monitor_servers_task():
-#     with flaskApp.app_context():
-#         config = AppConfig.query.first()
-#         scheduler.modify_job('monitor_servers', trigger='interval', seconds=config.monitoring_interval)
-#         monitor_servers() 
+                        response_code = response.status_code
+                        if  response_code == 200:
+                            server.state = True
+                            server.last_active = datetime.now()
+                        else:
+                            server.state = False
+                    except Timeout:
+                        response_code = 408
+                        server.state = False
+
+                    server.response_code = response_code
+                    log_entry = ServerStatusLog(server_id=server.id, state=server.state, response_code=server.response_code)
+
+                db.session.add(log_entry)
+                db.session.commit()
+            except Exception as e:
+                print(f'failed to check {server.address} - {e}')
 
 background_scheduler.add_job(delete_old_logs, 'cron', id='logs_cleanup', hour=0, minute=0)  # Run daily at midnight
 background_scheduler.add_job(monitor_servers_task, 'interval', id='monitor_servers', seconds=0)  # Initial interval
 background_scheduler.start()
-
-def monitor_servers():
-    servers = Hosts.query.all()
-    for server in servers:
-        try:
-            if server.check_type == 'ping':
-                host = ping(server.address, count=1, timeout=2)
-                if host.is_alive:
-                    server.state = True
-                    server.trip_time = host.avg_rtt
-                    server.last_active = datetime.now()
-                else:
-                    server.state = False
-                    server.trip_time = None
-                log_entry = ServerStatusLog(server_id=server.id, state=server.state, trip_time=server.trip_time)
-            elif server.check_type == 'fetch':
-                response_code = 0
-                try:
-                    response = requests.get(f'{server.scheme}{server.address}', timeout=2)
-
-                    response_code = response.status_code
-                    if  response_code == 200:
-                        server.state = True
-                        server.last_active = datetime.now()
-                    else:
-                        server.state = False
-                except Timeout:
-                    response_code = 408
-                    server.state = False
-
-                server.response_code = response_code
-                log_entry = ServerStatusLog(server_id=server.id, state=server.state, response_code=server.response_code)
-
-            db.session.add(log_entry)
-            db.session.commit()
-        except Exception as e:
-            print(f'failed to check {server.address} - {e}')
-
+    
 login_manager = LoginManager()
 login_manager.init_app(flaskApp)
 login_manager.login_view = 'login'
