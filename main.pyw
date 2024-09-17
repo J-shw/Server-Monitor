@@ -1,5 +1,5 @@
 import secrets, requests
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from requests.exceptions import Timeout
 from flask import Flask, render_template, jsonify, request, send_file, redirect, url_for, abort, session, Response
 from flask_sqlalchemy import SQLAlchemy
@@ -7,6 +7,7 @@ from sqlalchemy.exc import IntegrityError
 from flask_login import UserMixin, LoginManager, login_user, logout_user, login_required, current_user
 from flask_bcrypt import Bcrypt
 from flask_apscheduler import APScheduler
+from apscheduler.schedulers.background import BackgroundScheduler
 from icmplib import ping
 from waitress import serve
 
@@ -17,13 +18,31 @@ scheduler = APScheduler()
 scheduler.init_app(flaskApp)
 scheduler.start()
 
-@scheduler.task('interval', id='monitor_servers', seconds=0)  # Initial interval
+background_scheduler = BackgroundScheduler()
+
+def delete_old_logs():
+    with db.engine.begin() as connection:  # Ensure proper transaction handling
+        thirty_days_ago = datetime.now() - timedelta(days=30)
+        connection.execute(
+            ServerStatusLog.__table__.delete().where(ServerStatusLog.timestamp < thirty_days_ago)
+        )
+
 def monitor_servers_task():
     with flaskApp.app_context():
         config = AppConfig.query.first()
-        scheduler.modify_job('monitor_servers', trigger='interval', seconds=config.monitoring_interval)
-        monitor_servers() 
+        background_scheduler.reschedule_job('monitor_servers', trigger='interval', seconds=config.monitoring_interval)
+        monitor_servers()
 
+# @scheduler.task('interval', id='monitor_servers', seconds=0)  # Initial interval
+# def monitor_servers_task():
+#     with flaskApp.app_context():
+#         config = AppConfig.query.first()
+#         scheduler.modify_job('monitor_servers', trigger='interval', seconds=config.monitoring_interval)
+#         monitor_servers() 
+
+background_scheduler.add_job(delete_old_logs, 'cron', id='logs_cleanup', hour=0, minute=0)  # Run daily at midnight
+background_scheduler.add_job(monitor_servers_task, 'interval', id='monitor_servers', seconds=0)  # Initial interval
+background_scheduler.start()
 
 def monitor_servers():
     servers = Hosts.query.all()
