@@ -70,11 +70,13 @@ function hidePopup(id){
 }
 
 function showSidebar(id){
-  document.getElementById(id).classList.remove('hidden');
+  document.getElementById(id).classList.remove('closed');
+  document.getElementById(id).classList.add('open');
 }
 
 function hideSidebar(id){
-  document.getElementById(id).classList.add('hidden');
+  document.getElementById(id).classList.add('closed');
+  document.getElementById(id).classList.remove('open');
 }
 
 function deleteServer(){ // Deletes the server

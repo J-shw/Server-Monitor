@@ -37,8 +37,15 @@
     flex: 80%;
 }
 .main-div .column-right{
-    flex: 20%;
     border-radius: 5px 0 0 5px;
+}
+
+.main-div .column-right.closed{
+    flex: 0px;
+    display: none;
+}
+.main-div .column-right.open{
+    flex: 20%;
 }
 
 table {
